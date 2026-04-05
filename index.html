@@ -1020,7 +1020,7 @@
 
           var minAllowedDate = itemDateType === 'ESD' ? minEsdDate : minUbdDate;
 
-          if (useByDate.getTime() <= minAllowedDate.getTime()) {
+          if (useByDate.getTime() < minAllowedDate.getTime()) {
             removed++;
             removeTmIds.push({ 'Tm id': tmId });
             detailedResults.push({
