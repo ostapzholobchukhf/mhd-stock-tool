@@ -122,8 +122,8 @@
   <div class="app">
     <aside class="sidebar">
       <div class="brand">
-        <div class="brand-title">GREEN</div>
-        <div class="brand-sub">Operations</div>
+        <div class="brand-title">The BARN</div>
+        <div class="brand-sub">Fresh Operations</div>
       </div>
       <div class="nav"><div class="nav-item">Freshness Filter</div></div>
     </aside>
@@ -165,8 +165,8 @@
           </section>
           <section class="card">
             <div class="card-head">
-              <div class="card-title">Rack Stock UBD Check</div>
-              <div class="card-note">Enter a SKU to check whether older stock exists in storage racks for that item.</div>
+              <div class="card-title">Rack Old Stock Check</div>
+              <div class="card-note">Enter a SKU to see which production racks currently have older stock for that item, grouped by rack with TM counts.</div>
             </div>
             <div class="controls" style="grid-template-columns: 1fr auto; align-items: end;">
               <div class="field"><label>Enter SKU</label><input type="text" id="skuLookupInput" placeholder="Example: BAK-00-003852-5" /></div>
@@ -177,10 +177,9 @@
                 <strong id="skuCheckTitle">SKU Result</strong>
                 <div class="sku-check-grid">
                   <div><small>Area</small><div id="skuCheckArea"></div></div>
-                  <div><small>Date Type</small><div id="skuCheckDateType"></div></div>
-                  <div><small>Example Rack</small><div id="skuCheckRack"></div></div>
-                  <div><small>Oldest Storage Date</small><div id="skuCheckOldest"></div></div>
-                  <div><small>Storage Pallets Found</small><div id="skuCheckCount"></div></div>
+                  <div><small>Oldest Date In Racks</small><div id="skuCheckOldest"></div></div>
+                  <div><small>Rack Summary</small><div id="skuCheckRacks"></div></div>
+                  <div><small>Total Tm IDs In Racks</small><div id="skuCheckCount"></div></div>
                   <div><small>Status</small><div id="skuCheckStatus"></div></div>
                 </div>
               </div>
@@ -209,7 +208,6 @@
                   <th data-sort="Area">Area</th>
                   <th data-sort="Date type">Date type</th>
                   <th data-sort="Use by date">Use by date</th>
-                  <th data-sort="Minimum date">Minimum date</th>
                   <th data-sort="Qty">Qty</th>
                   <th data-sort="Usable qty">Usable qty</th>
                   <th>Action</th>
@@ -363,7 +361,7 @@
       empty.style.display = "none";
       for (var i = 0; i < filtered.length; i++) {
         var tr = document.createElement("tr"); tr.className = "remove-row";
-        var cols = ["Tm id","Sku code","Tm location","Area","Date type","Use by date","Minimum date","Qty","Usable qty"];
+        var cols = ["Tm id","Sku code","Tm location","Area","Date type","Use by date","Qty","Usable qty"];
         for (var c = 0; c < cols.length; c++) { var td = document.createElement("td"); td.textContent = filtered[i][cols[c]] || ""; tr.appendChild(td); }
         var actionTd = document.createElement("td"), badge = document.createElement("span"); badge.className = "badge-remove"; badge.textContent = "Remove"; actionTd.appendChild(badge); tr.appendChild(actionTd); tbody.appendChild(tr);
       }
@@ -395,10 +393,30 @@
       if (area === "Not found" || dateType === "Not found") status = "Missing in weekly defaults";
       document.getElementById("skuCheckTitle").textContent = "SKU: " + sku;
       document.getElementById("skuCheckArea").textContent = area;
-      document.getElementById("skuCheckDateType").textContent = dateType;
-      document.getElementById("skuCheckRack").textContent = rack;
-      document.getElementById("skuCheckOldest").textContent = oldestDate;
-      document.getElementById("skuCheckCount").textContent = String(storageRows.length);
+      var rackRows = [];
+      for (var k = 0; k < snapshotRowsCache.length; k++) {
+        var rr = snapshotRowsCache[k];
+        var rrSku = String(rr["Sku code"] || "").trim();
+        var rrLoc = String(rr["Tm location"] || "").trim();
+        var rrPrefix = getPrefix(rrLoc);
+        if (rrSku === sku && (rrPrefix === "FK" || rrPrefix === "HL" || rrPrefix === "AD")) rackRows.push(rr);
+      }
+      var rackCountMap = {};
+      var oldestRackDate = null;
+      for (var m = 0; m < rackRows.length; m++) {
+        var rackLoc = String(rackRows[m]["Tm location"] || "").trim();
+        rackCountMap[rackLoc] = (rackCountMap[rackLoc] || 0) + 1;
+        var rackDate = parseDateFlexible(rackRows[m]["Use by date"] || "");
+        if (rackDate && (!oldestRackDate || rackDate.getTime() < oldestRackDate.getTime())) oldestRackDate = rackDate;
+      }
+      var rackSummary = Object.keys(rackCountMap).sort().map(function(key){ return key + " (" + rackCountMap[key] + ")"; }).join(", ");
+      if (!rackSummary) rackSummary = "No rack stock found in loaded snapshot";
+      status = rackRows.length ? "Old stock visible in racks" : "No rack stock found in loaded snapshot";
+      if (area === "Not found") status = "Missing in weekly defaults";
+      document.getElementById("skuCheckArea").textContent = area;
+      document.getElementById("skuCheckOldest").textContent = oldestRackDate ? formatDateDisplay(oldestRackDate) : "Not found";
+      document.getElementById("skuCheckRacks").textContent = rackSummary;
+      document.getElementById("skuCheckCount").textContent = String(rackRows.length);
       document.getElementById("skuCheckStatus").textContent = status;
       resultBox.style.display = "block";
     }
@@ -439,7 +457,7 @@
           if (normalizedUseBy.getTime() < minNormalized.getTime()) {
             removed++;
             removeTmIds.push({ "Tm id": tmId });
-            removeRows.push({ "Tm id": tmId, "Sku code": sku, "Tm location": tmLocation, "Area": area, "Date type": itemDateType, "Use by date": useByDateRaw, "Minimum date": formatDateDisplay(minNormalized), "Qty": row["Qty"] || "", "Usable qty": row["Usable qty"] || "" });
+            removeRows.push({ "Tm id": tmId, "Sku code": sku, "Tm location": tmLocation, "Area": area, "Date type": itemDateType, "Use by date": useByDateRaw, "Qty": row["Qty"] || "", "Usable qty": row["Usable qty"] || "" });
           }
         }
         document.getElementById("sumChecked").textContent = String(checked);
@@ -480,4 +498,3 @@
   </script>
 </body>
 </html>
-
