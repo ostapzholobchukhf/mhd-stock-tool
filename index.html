@@ -241,6 +241,41 @@
     var currentSort = { key: "Tm id", dir: 1 };
 
     function normalizeHeader(str) { return String(str || "").trim(); }
+    function getField(row, names) {
+      for (var i = 0; i < names.length; i++) {
+        if (row[names[i]] !== undefined) return row[names[i]];
+      }
+      var wanted = names.map(function(n){ return String(n).toLowerCase(); });
+      var keys = Object.keys(row);
+      for (var k = 0; k < keys.length; k++) {
+        if (wanted.indexOf(String(keys[k]).toLowerCase()) !== -1) return row[keys[k]];
+      }
+      return "";
+    }
+    function buildSnapshotRackAreaMap(rows) {
+      var counts = {};
+      for (var i = 0; i < rows.length; i++) {
+        var sku = String(getField(rows[i], ["Sku code", "SKU", "ArticleSKU"]) || "").trim();
+        var loc = String(getField(rows[i], ["Tm location", "BinLocationName"]) || "").trim();
+        var area = getAreaFromBinLocation(loc);
+        if (!sku || !area) continue;
+        if (!counts[sku]) counts[sku] = {};
+        counts[sku][area] = (counts[sku][area] || 0) + 1;
+      }
+      var result = new Map();
+      Object.keys(counts).forEach(function(sku){
+        var bestArea = "";
+        var bestCount = -1;
+        Object.keys(counts[sku]).forEach(function(area){
+          if (counts[sku][area] > bestCount) {
+            bestArea = area;
+            bestCount = counts[sku][area];
+          }
+        });
+        if (bestArea) result.set(sku, bestArea);
+      });
+      return result;
+    }
     function getPrefix(value) { return String(value || "").trim().toUpperCase().slice(0, 2); }
     function isStorageLocation(location) { return STORAGE_PREFIXES.indexOf(getPrefix(location)) !== -1; }
     function getAreaFromBinLocation(binLocationName) { return AREA_BY_BIN_PREFIX[getPrefix(binLocationName)] || null; }
@@ -310,35 +345,45 @@
       var url = URL.createObjectURL(blob), a = document.createElement("a");
       a.href = url; a.download = filename; a.click(); URL.revokeObjectURL(url);
     }
-    function fetchTextIfExists(url) { return fetch(url, { cache: "no-store" }).then(function(r){ return r.ok ? r.text() : ""; }).catch(function(){ return ""; }); }
+    function fetchTextIfExists(url) {
+      var cacheBuster = url + (url.indexOf("?") === -1 ? "?" : "&") + "v=" + Date.now();
+      return fetch(cacheBuster, { cache: "no-store" })
+        .then(function(r){ return r.ok ? r.text() : ""; })
+        .catch(function(){ return ""; });
+    }
     function buildWeeklyMaps() {
       areaMap = new Map(); dateTypeMap = new Map(); rackExampleMap = new Map();
       for (var i = 0; i < areaRowsCache.length; i++) {
-        var skuA = String(areaRowsCache[i]["ArticleSKU"] || "").trim();
-        var bin = String(areaRowsCache[i]["BinLocationName"] || "").trim();
+        var skuA = String(getField(areaRowsCache[i], ["ArticleSKU", "SKU", "Sku code"]) || "").trim();
+        var bin = String(getField(areaRowsCache[i], ["BinLocationName", "Tm location", "Rack"]) || "").trim();
         var area = getAreaFromBinLocation(bin);
         if (skuA && area && !areaMap.has(skuA)) areaMap.set(skuA, area);
         if (skuA && bin && !rackExampleMap.has(skuA)) rackExampleMap.set(skuA, bin);
       }
       for (var r = 0; r < rulesRowsCache.length; r++) {
-        var skuR = String(rulesRowsCache[r]["SKU"] || "").trim();
-        var packagingInfo = String(rulesRowsCache[r]["Packaging Info"] || "").trim();
+        var skuR = String(getField(rulesRowsCache[r], ["SKU", "Sku code", "ArticleSKU"]) || "").trim();
+        var packagingInfo = String(getField(rulesRowsCache[r], ["Packaging Info", "Packaging info", "packaging info"]) || "").trim();
         var dt = normalizeDateTypeBySku(skuR, packagingInfo);
         if (skuR && dt && !dateTypeMap.has(skuR)) dateTypeMap.set(skuR, dt);
       }
     }
     function loadSavedWeeklyFiles() {
-      savedAreaText = localStorage.getItem("freshnessWeeklyArea") || "";
-      savedRulesText = localStorage.getItem("freshnessWeeklyRules") || "";
-      if (savedAreaText) areaRowsCache = parseCsv(savedAreaText);
-      if (savedRulesText) rulesRowsCache = parseCsv(savedRulesText);
+      // Weekly files are loaded from the repository defaults only.
+      // This avoids stale browser localStorage after weekly files are replaced in GitHub.
+      savedAreaText = "";
+      savedRulesText = "";
+      areaRowsCache = [];
+      rulesRowsCache = [];
       buildWeeklyMaps();
     }
     function loadDefaultWeeklyFiles() {
       return Promise.all([fetchTextIfExists(defaultAreaUrl), fetchTextIfExists(defaultRulesUrl)]).then(function(loaded){
-        if (loaded[0]) { savedAreaText = loaded[0]; localStorage.setItem("freshnessWeeklyArea", savedAreaText); areaRowsCache = parseCsv(savedAreaText); }
-        if (loaded[1]) { savedRulesText = loaded[1]; localStorage.setItem("freshnessWeeklyRules", savedRulesText); rulesRowsCache = parseCsv(savedRulesText); }
+        if (loaded[0]) { savedAreaText = loaded[0]; areaRowsCache = parseCsv(savedAreaText); }
+        if (loaded[1]) { savedRulesText = loaded[1]; rulesRowsCache = parseCsv(savedRulesText); }
         buildWeeklyMaps();
+        if (!savedAreaText || !savedRulesText) {
+          alert("Weekly defaults could not be loaded. Check that weekly_area.csv and weekly_rules.csv are in the same GitHub folder as index.html.");
+        }
       });
     }
     function updateCurrentDate() { document.getElementById("currentDateLabel").textContent = formatDateDisplay(new Date()); }
@@ -371,20 +416,21 @@
       var sku = String(document.getElementById("skuLookupInput").value || "").trim();
       var resultBox = document.getElementById("skuCheckResult");
       if (!sku) { resultBox.style.display = "none"; return; }
-      var area = areaMap.get(sku) || "Not found";
+      var snapshotAreaMapForLookup = buildSnapshotRackAreaMap(snapshotRowsCache);
+      var area = areaMap.get(sku) || snapshotAreaMapForLookup.get(sku) || "Not found";
       var dateType = dateTypeMap.get(sku) || "Not found";
       var rack = rackExampleMap.get(sku) || "Not found";
       var storageRows = [];
       for (var i = 0; i < snapshotRowsCache.length; i++) {
-        var rowSku = String(snapshotRowsCache[i]["Sku code"] || "").trim();
-        var loc = String(snapshotRowsCache[i]["Tm location"] || "").trim();
+        var rowSku = String(getField(snapshotRowsCache[i], ["Sku code", "SKU", "ArticleSKU"]) || "").trim();
+        var loc = String(getField(snapshotRowsCache[i], ["Tm location", "BinLocationName"]) || "").trim();
         if (rowSku === sku && isStorageLocation(loc)) storageRows.push(snapshotRowsCache[i]);
       }
       var oldestDate = "Not found";
       if (storageRows.length) {
         var oldest = null;
         for (var j = 0; j < storageRows.length; j++) {
-          var parsed = parseDateFlexible(storageRows[j]["Use by date"] || "");
+          var parsed = parseDateFlexible(getField(storageRows[j], ["Use by date", "UBD", "ESD"]) || "");
           if (parsed && (!oldest || parsed.getTime() < oldest.getTime())) oldest = parsed;
         }
         if (oldest) oldestDate = formatDateDisplay(oldest);
@@ -396,8 +442,8 @@
       var rackRows = [];
       for (var k = 0; k < snapshotRowsCache.length; k++) {
         var rr = snapshotRowsCache[k];
-        var rrSku = String(rr["Sku code"] || "").trim();
-        var rrLoc = String(rr["Tm location"] || "").trim();
+        var rrSku = String(getField(rr, ["Sku code", "SKU", "ArticleSKU"]) || "").trim();
+        var rrLoc = String(getField(rr, ["Tm location", "BinLocationName"]) || "").trim();
         var rrPrefix = getPrefix(rrLoc);
         if (rrSku === sku && (rrPrefix === "FK" || rrPrefix === "HL" || rrPrefix === "AD")) rackRows.push(rr);
       }
@@ -406,7 +452,7 @@
       for (var m = 0; m < rackRows.length; m++) {
         var rackLoc = String(rackRows[m]["Tm location"] || "").trim();
         rackCountMap[rackLoc] = (rackCountMap[rackLoc] || 0) + 1;
-        var rackDate = parseDateFlexible(rackRows[m]["Use by date"] || "");
+        var rackDate = parseDateFlexible(getField(rackRows[m], ["Use by date", "UBD", "ESD"]) || "");
         if (rackDate && (!oldestRackDate || rackDate.getTime() < oldestRackDate.getTime())) oldestRackDate = rackDate;
       }
       var rackSummary = Object.keys(rackCountMap).sort().map(function(key){ return key + " (" + rackCountMap[key] + ")"; }).join(", ");
@@ -434,18 +480,19 @@
       if (!minEsdDate || !minUbdDate) { alert("Please enter both minimum dates."); return; }
       readFileAsText(snapshotFile).then(function(snapshotText){
         snapshotRowsCache = parseCsv(snapshotText);
+        var snapshotAreaMap = buildSnapshotRackAreaMap(snapshotRowsCache);
         removeTmIds = []; removeRows = [];
         var checked = 0, removed = 0, expired = 0, borderline = 0;
         var today = new Date(); today = new Date(today.getFullYear(), today.getMonth(), today.getDate());
         for (var i = 0; i < snapshotRowsCache.length; i++) {
-          var row = snapshotRowsCache[i], tmLocation = String(row["Tm location"] || "").trim();
+          var row = snapshotRowsCache[i], tmLocation = String(getField(row, ["Tm location", "BinLocationName"]) || "").trim();
           if (!isStorageLocation(tmLocation)) continue;
           checked++;
-          var sku = String(row["Sku code"] || "").trim();
-          var tmId = String(row["Tm id"] || "").trim();
-          var useByDateRaw = String(row["Use by date"] || "").trim();
+          var sku = String(getField(row, ["Sku code", "SKU", "ArticleSKU"]) || "").trim();
+          var tmId = String(getField(row, ["Tm id", "TM ID", "TmId"]) || "").trim();
+          var useByDateRaw = String(getField(row, ["Use by date", "UBD", "ESD"]) || "").trim();
           var useByDate = parseDateFlexible(useByDateRaw);
-          var area = areaMap.get(sku) || "";
+          var area = areaMap.get(sku) || snapshotAreaMap.get(sku) || "";
           var itemDateType = dateTypeMap.get(sku) || "";
           if (!area || !itemDateType || !useByDate) continue;
           if (area !== selectedArea) continue;
@@ -457,7 +504,7 @@
           if (normalizedUseBy.getTime() < minNormalized.getTime()) {
             removed++;
             removeTmIds.push({ "Tm id": tmId });
-            removeRows.push({ "Tm id": tmId, "Sku code": sku, "Tm location": tmLocation, "Area": area, "Date type": itemDateType, "Use by date": useByDateRaw, "Qty": row["Qty"] || "", "Usable qty": row["Usable qty"] || "" });
+            removeRows.push({ "Tm id": tmId, "Sku code": sku, "Tm location": tmLocation, "Area": area, "Date type": itemDateType, "Use by date": useByDateRaw, "Qty": getField(row, ["Qty"]) || "", "Usable qty": getField(row, ["Usable qty"]) || "" });
           }
         }
         document.getElementById("sumChecked").textContent = String(checked);
@@ -490,6 +537,8 @@
     updateCurrentDate();
     setDateInputDefault("minEsdDate", 2);
     setDateInputDefault("minUbdDate", 5);
+    localStorage.removeItem("freshnessWeeklyArea");
+    localStorage.removeItem("freshnessWeeklyRules");
     loadSavedWeeklyFiles();
     setupDragAndDrop();
     initSorting();
