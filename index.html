@@ -252,6 +252,94 @@
       transform: translateY(-1px);
     }
 
+    .freshness-insight {
+      grid-column: 2;
+      grid-row: 2 / span 1;
+      border: 1px solid #cfe8d8;
+      border-radius: 20px;
+      padding: 18px;
+      background:
+        radial-gradient(circle at top right, rgba(16, 144, 84, 0.14), transparent 38%),
+        linear-gradient(180deg, #ffffff, #f3fbf6);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.85), 0 12px 26px rgba(16,144,84,0.08);
+      min-height: 118px;
+    }
+
+    .insight-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .insight-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #607089;
+      font-weight: 950;
+    }
+
+    .insight-title {
+      margin-top: 4px;
+      font-size: 20px;
+      font-weight: 950;
+      letter-spacing: -0.03em;
+      color: var(--green-2);
+    }
+
+    .insight-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(180deg, #e9f8ef, #dff4e8);
+      border: 1px solid #c6e4d1;
+      font-size: 20px;
+      box-shadow: 0 10px 20px rgba(16,144,84,0.10);
+    }
+
+    .insight-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .insight-tile {
+      border-radius: 14px;
+      padding: 11px 12px;
+      background: rgba(255,255,255,0.82);
+      border: 1px solid #dceee3;
+    }
+
+    .insight-tile span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .insight-grid.single {
+      grid-template-columns: 1fr;
+    }
+
+    .insight-tile strong {
+      display: block;
+      color: var(--ink);
+      font-size: 15px;
+      font-weight: 950;
+    }
+
+    .insight-note {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
     .drop {
       grid-column: 1 / -1;
       border: 2px dashed #aedcbd;
@@ -592,6 +680,15 @@
         grid-template-columns: 1fr;
       }
 
+      .freshness-insight {
+        grid-column: 1;
+        grid-row: auto;
+      }
+
+      .insight-grid {
+        grid-template-columns: 1fr;
+      }
+
       .hero h1 {
         font-size: 30px;
       }
@@ -665,6 +762,23 @@
               <div class="field">
                 <label>Minimum Allowed UBD Date</label>
                 <input type="date" id="minUbdDate" />
+              </div>
+
+              <div class="freshness-insight" id="freshnessInsight">
+                <div class="insight-top">
+                  <div>
+                    <div class="insight-label">Production Day</div>
+                    <div class="insight-title" id="prodDayTitle">Select ESD date</div>
+                  </div>
+                  <div class="insight-icon">📅</div>
+                </div>
+                <div class="insight-grid single">
+                  <div class="insight-tile">
+                    <span>Defined by ESD minimum date</span>
+                    <strong id="esdProdDay">-</strong>
+                  </div>
+                </div>
+                <div class="insight-note" id="freshnessNote">UBD/MHD is checked separately as freshness minimum, but it does not define the production day.</div>
               </div>
 
               <div class="field drop">
@@ -1149,6 +1263,28 @@
       URL.revokeObjectURL(url);
     }
 
+    function weekdayName(date) {
+      if (!date || isNaN(date.getTime())) return "-";
+      return date.toLocaleDateString("en-GB", { weekday: "long" });
+    }
+
+    function updateFreshnessInsight() {
+      var esdDate = parseDateFlexible(document.getElementById("minEsdDate").value);
+
+      var esdLabel = esdDate ? weekdayName(esdDate) + " · " + formatDateDisplay(esdDate) : "-";
+
+      document.getElementById("esdProdDay").textContent = esdLabel;
+
+      if (esdDate) {
+        document.getElementById("prodDayTitle").textContent = weekdayName(esdDate) + " production";
+      } else {
+        document.getElementById("prodDayTitle").textContent = "Select ESD date";
+      }
+
+      document.getElementById("freshnessNote").textContent =
+        "Production day is defined only by ESD. UBD/MHD date is used only as the minimum freshness limit for non-PHF stock.";
+    }
+
     function updateCurrentDate() {
       document.getElementById("currentDateLabel").textContent = formatDateDisplay(new Date());
     }
@@ -1496,9 +1632,12 @@
       renderResults(removeRows);
     });
 
+    document.getElementById("minEsdDate").addEventListener("change", updateFreshnessInsight);
+
     updateCurrentDate();
     setDateDefault("minEsdDate", 2);
     setDateDefault("minUbdDate", 5);
+    updateFreshnessInsight();
     setupDrag();
     initSort();
     renderResults([]);
