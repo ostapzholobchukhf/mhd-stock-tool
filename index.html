@@ -4,60 +4,1513 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>The BARN Fresh Operations</title>
+
   <style>
-    :root{
-      --green:#109054;--green2:#0b7544;--mint:#edf9f2;--mint2:#dff4e8;--bg:#f3f7f5;--panel:#fff;--ink:#142033;--muted:#667085;--line:#e3e8ea;--red:#c53b30;--redbg:#fff0ef;--bluebg:#eff6ff;--amberbg:#fff7e7;--shadow:0 18px 45px rgba(16,24,40,.09);--radius:22px
+    :root {
+      --green: #109054;
+      --green-2: #0b7544;
+      --green-3: #18a761;
+      --mint: #edf9f2;
+      --mint-2: #dff4e8;
+      --mint-3: #f7fcf9;
+      --blue-bg: #eff6ff;
+      --blue-text: #2457a6;
+      --red: #c53b30;
+      --red-bg: #fff0ef;
+      --amber-bg: #fff7e7;
+      --bg: #f3f7f5;
+      --panel: #ffffff;
+      --ink: #142033;
+      --muted: #667085;
+      --line: #e3e8ea;
+      --shadow: 0 20px 55px rgba(16, 24, 40, 0.10);
+      --shadow-soft: 0 14px 34px rgba(16, 24, 40, 0.08);
+      --radius: 24px;
     }
-    *{box-sizing:border-box} body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;color:var(--ink);background:radial-gradient(circle at top right,rgba(16,144,84,.13),transparent 25%),linear-gradient(180deg,#fbfdfc 0%,var(--bg) 32%)}
-    .app{display:grid;grid-template-columns:252px 1fr;min-height:100vh}.sidebar{background:linear-gradient(180deg,#139256 0%,#0a6d41 100%);color:#fff;padding:26px 0;box-shadow:inset -1px 0 0 rgba(255,255,255,.08)}
-    .brand{padding:0 24px 26px;border-bottom:1px solid rgba(255,255,255,.16)}.brand-title{font-size:36px;font-weight:950;line-height:.95;letter-spacing:-.04em}.brand-sub{margin-top:9px;font-size:12px;text-transform:uppercase;letter-spacing:.16em;opacity:.92}.nav{padding:20px 12px}.nav-item{padding:15px 16px;border-radius:14px;background:rgba(255,255,255,.13);font-weight:850}
-    .main{min-width:0}.hero{margin:0;padding:28px 30px 24px;background:linear-gradient(135deg,#fff 0%,#fbfffc 54%,#eaf8ef 100%);border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:22px;align-items:center;position:sticky;top:0;z-index:50}.hero h1{margin:0;font-size:38px;letter-spacing:-.04em;font-weight:950}.hero p{margin:7px 0 0;color:var(--muted);font-size:14px}.hero-art{display:flex;gap:12px;align-items:center}.hero-chip{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #d7eadf;border-radius:18px;padding:14px 16px;box-shadow:0 14px 30px rgba(16,144,84,.1);color:var(--green2);font-weight:900}.hero-icon{height:38px;width:38px;border-radius:13px;display:grid;place-items:center;background:var(--mint);font-size:20px}.box-stack{display:flex;gap:6px}.box{width:42px;height:42px;border-radius:12px;background:linear-gradient(180deg,#dff4e8,#fff);border:1px solid #ccebd8;display:grid;place-items:center;box-shadow:0 8px 20px rgba(16,144,84,.09);font-size:20px}.content{padding:28px 30px 36px}.grid-main{display:grid;grid-template-columns:minmax(620px,1.45fr) minmax(420px,.95fr);gap:22px}.card{background:rgba(255,255,255,.96);border:1px solid rgba(227,232,234,.95);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}.card-head{padding:24px 26px 15px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#fff,#fbfdfc)}.card-title{font-size:26px;font-weight:950;letter-spacing:-.035em}.card-note{margin-top:6px;color:var(--muted);font-size:14px}.controls{padding:22px 26px;display:grid;grid-template-columns:repeat(2,minmax(240px,1fr));gap:17px;background:linear-gradient(180deg,#fff,#fbfdfc)}.field{display:flex;flex-direction:column;gap:8px}.field label{font-size:12px;font-weight:950;color:#607089;text-transform:uppercase;letter-spacing:.07em}.field input,.field select{width:100%;border:1px solid #d3dde3;border-radius:14px;background:#fff;padding:14px 15px;color:var(--ink);font-size:14px;outline:0;transition:.16s}.field input:focus,.field select:focus{border-color:#9ed7b6;box-shadow:0 0 0 4px rgba(16,144,84,.11);transform:translateY(-1px)}
-    .drop{grid-column:1/-1;border:2px dashed #aedcbd;border-radius:20px;padding:30px 24px;text-align:center;background:linear-gradient(180deg,#f9fffb,#f2fbf6);transition:.16s}.drop.dragover{border-color:var(--green);background:#ecf9f1;transform:translateY(-1px)}.drop strong{font-size:20px;display:block}.drop small{display:block;margin-top:7px;color:var(--muted)}.drop input{margin-top:16px}.file-pill{margin-top:14px;display:inline-block;background:#fff;border:1px solid #d7eadf;color:var(--green2);border-radius:999px;padding:9px 13px;font-size:13px;font-weight:850}.toolbar{padding:18px 26px;border-top:1px solid var(--line);background:#fff;display:flex;gap:13px;flex-wrap:wrap}.btn{border:0;border-radius:14px;padding:13px 20px;font-weight:950;cursor:pointer;transition:.16s}.btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 12px 24px rgba(16,24,40,.12)}.btn-primary{background:linear-gradient(180deg,#18a761,#109054);color:#fff}.btn-soft{background:#fff;border:1px solid #bfe0ca;color:var(--green2)}.btn:disabled{opacity:.55;cursor:not-allowed}.rack-card .controls{grid-template-columns:1fr auto}.result-box{margin:0 26px 24px;padding:18px;border:1px solid #d6eadf;border-radius:18px;background:linear-gradient(180deg,#fff,#f7fcf9);display:none}.result-box strong{font-size:18px}.mini-grid{display:grid;grid-template-columns:repeat(2,minmax(160px,1fr));gap:14px;margin-top:13px}.mini-grid small{color:var(--muted);display:block;margin-bottom:3px}.rack-pills{display:flex;flex-wrap:wrap;gap:7px;margin-top:4px}.rack-pill{background:var(--mint);border:1px solid #c9e7d5;color:var(--green2);border-radius:999px;padding:6px 10px;font-weight:850;font-size:12px}.kpis{display:grid;grid-template-columns:repeat(4,minmax(170px,1fr));gap:15px;margin:22px 0}.kpi{border:1px solid rgba(227,232,234,.95);border-radius:20px;box-shadow:var(--shadow);padding:20px;background:#fff}.kpi.blue{background:linear-gradient(180deg,#fff,var(--bluebg))}.kpi.red{background:linear-gradient(180deg,#fff,var(--redbg))}.kpi.green{background:linear-gradient(180deg,#fff,var(--mint))}.kpi.orange{background:linear-gradient(180deg,#fff,var(--amberbg))}.kpi-label{font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:#607089;font-weight:950}.kpi-value{font-size:34px;font-weight:950;margin-top:10px;letter-spacing:-.04em}.kpi-sub{font-size:13px;color:var(--muted);margin-top:7px}.table-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}.table-head{padding:20px 26px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;background:linear-gradient(180deg,#fff,#fbfdfc)}.table-title{font-size:24px;font-weight:950;letter-spacing:-.035em}.table-note{margin-top:5px;color:var(--muted);font-size:14px}.table-tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.search{min-width:300px;border:1px solid #d3dde3;border-radius:14px;padding:13px 15px}.table-wrap{overflow:auto;max-height:660px}table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:14px 16px;border-bottom:1px solid #edf0f2;text-align:left;white-space:nowrap}th{position:sticky;top:0;background:#f8fafb;color:#607089;font-weight:950;z-index:2;cursor:pointer}tbody tr:hover td{background:#fbfdfc}.badge-remove,.badge-reason,.badge-type{display:inline-block;border-radius:999px;padding:6px 10px;font-weight:900;font-size:12px}.badge-remove{background:var(--redbg);color:var(--red)}.badge-reason{background:var(--mint);color:var(--green2)}.badge-type{background:#eef5ff;color:#2457a6}.empty{padding:54px;text-align:center;color:var(--muted);background:#fff}.footer{margin-top:18px;text-align:center;color:var(--muted);font-size:13px}@media(max-width:1250px){.app{grid-template-columns:1fr}.sidebar{display:none}.grid-main{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}}@media(max-width:760px){.hero,.content{padding-left:18px;padding-right:18px}.controls,.kpis,.mini-grid{grid-template-columns:1fr}.hero h1{font-size:30px}.box-stack{display:none}.search{min-width:100%}}
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, Arial, Helvetica, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top right, rgba(16, 144, 84, 0.13), transparent 25%),
+        linear-gradient(180deg, #fbfdfc 0%, var(--bg) 32%);
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 252px 1fr;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      background: linear-gradient(180deg, #139256 0%, #0a6d41 100%);
+      color: #ffffff;
+      padding: 26px 0;
+      box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.08);
+    }
+
+    .brand {
+      padding: 0 24px 26px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+    }
+
+    .brand-title {
+      font-size: 36px;
+      font-weight: 950;
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+    }
+
+    .brand-sub {
+      margin-top: 9px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      opacity: 0.92;
+    }
+
+    .nav {
+      padding: 20px 12px;
+    }
+
+    .nav-item {
+      padding: 15px 16px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.13);
+      font-weight: 850;
+    }
+
+    .main {
+      min-width: 0;
+    }
+
+    .hero {
+      margin: 0;
+      padding: 30px 34px 26px;
+      background:
+        radial-gradient(circle at top right, rgba(16, 144, 84, 0.16), transparent 24%),
+        linear-gradient(135deg, #ffffff 0%, #f9fffb 56%, #e8f7ee 100%);
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      gap: 22px;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: 42px;
+      letter-spacing: -0.05em;
+      font-weight: 950;
+    }
+
+    .hero p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+      max-width: 760px;
+    }
+
+    .hero-art {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .hero-chip {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: linear-gradient(180deg, #ffffff, #f5fcf8);
+      border: 1px solid #cfe8d8;
+      border-radius: 20px;
+      padding: 16px 20px;
+      box-shadow: 0 18px 40px rgba(16, 144, 84, 0.12);
+      color: var(--green-2);
+      font-weight: 950;
+      font-size: 16px;
+      white-space: nowrap;
+    }
+
+    .hero-icon {
+      height: 42px;
+      width: 42px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(180deg, #e9f8ef, #dff4e8);
+      font-size: 22px;
+    }
+
+    .box-stack {
+      display: flex;
+      gap: 6px;
+    }
+
+    .box {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #f3fff7, #ffffff);
+      border: 1px solid #cae8d4;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 10px 24px rgba(16, 144, 84, 0.10);
+      font-size: 22px;
+    }
+
+    .content {
+      padding: 28px 30px 36px;
+    }
+
+    .grid-main {
+      display: grid;
+      grid-template-columns: minmax(620px, 1.45fr) minmax(420px, 0.95fr);
+      gap: 22px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(252, 254, 253, 0.98));
+      border: 1px solid rgba(220, 228, 232, 0.95);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-head {
+      padding: 26px 28px 16px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #ffffff, #fbfefc);
+    }
+
+    .card-title {
+      font-size: 28px;
+      font-weight: 950;
+      letter-spacing: -0.04em;
+    }
+
+    .card-note {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.35;
+    }
+
+    .controls {
+      padding: 22px 26px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(240px, 1fr));
+      gap: 17px;
+      background: linear-gradient(180deg, #ffffff, #fbfdfc);
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .field label {
+      font-size: 12px;
+      font-weight: 950;
+      color: #607089;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      border: 1px solid #d3dde3;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #ffffff, #fcfefd);
+      padding: 15px 16px;
+      color: var(--ink);
+      font-size: 14px;
+      outline: 0;
+      transition: 0.18s;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    }
+
+    .field input:hover,
+    .field select:hover {
+      border-color: #b8d7c5;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      border-color: #8fceb0;
+      box-shadow: 0 0 0 4px rgba(16, 144, 84, 0.12), 0 10px 20px rgba(16, 144, 84, 0.08);
+      transform: translateY(-1px);
+    }
+
+    .drop {
+      grid-column: 1 / -1;
+      border: 2px dashed #aedcbd;
+      border-radius: 20px;
+      padding: 30px 24px;
+      text-align: center;
+      background: linear-gradient(180deg, #f9fffb, #f2fbf6);
+      transition: 0.16s;
+    }
+
+    .drop.dragover {
+      border-color: var(--green);
+      background: #ecf9f1;
+      transform: translateY(-1px);
+    }
+
+    .drop strong {
+      font-size: 20px;
+      display: block;
+    }
+
+    .drop small {
+      display: block;
+      margin-top: 7px;
+      color: var(--muted);
+    }
+
+    .drop input {
+      margin-top: 16px;
+    }
+
+    .file-pill {
+      margin-top: 14px;
+      display: inline-block;
+      background: #ffffff;
+      border: 1px solid #d7eadf;
+      color: var(--green-2);
+      border-radius: 999px;
+      padding: 9px 13px;
+      font-size: 13px;
+      font-weight: 850;
+    }
+
+    .toolbar {
+      padding: 18px 26px;
+      border-top: 1px solid var(--line);
+      background: #ffffff;
+      display: flex;
+      gap: 13px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 14px;
+      padding: 13px 20px;
+      font-weight: 950;
+      cursor: pointer;
+      transition: 0.16s;
+    }
+
+    .btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 24px rgba(16, 24, 40, 0.12);
+    }
+
+    .btn-primary {
+      background: linear-gradient(180deg, #19ae65, #109054);
+      color: #ffffff;
+      border: 1px solid rgba(0, 0, 0, 0.04);
+      box-shadow: 0 12px 24px rgba(16, 144, 84, 0.20);
+    }
+
+    .btn-soft {
+      background: linear-gradient(180deg, #ffffff, #f7fcf9);
+      border: 1px solid #c6e4d1;
+      color: var(--green-2);
+    }
+
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .rack-card .controls {
+      grid-template-columns: 1fr auto;
+    }
+
+    .result-box {
+      margin: 0 26px 24px;
+      padding: 20px 20px 18px;
+      border: 1px solid #d6eadf;
+      border-radius: 20px;
+      background: linear-gradient(180deg, #ffffff, #f5fcf8);
+      display: none;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    }
+
+    .result-box strong {
+      font-size: 18px;
+    }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(160px, 1fr));
+      gap: 14px;
+      margin-top: 13px;
+    }
+
+    .mini-grid small {
+      color: var(--muted);
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .rack-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 4px;
+    }
+
+    .rack-pill {
+      background: linear-gradient(180deg, #eefaf3, #e1f5e8);
+      border: 1px solid #c6e4d1;
+      color: var(--green-2);
+      border-radius: 999px;
+      padding: 7px 11px;
+      font-weight: 900;
+      font-size: 12px;
+    }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(170px, 1fr));
+      gap: 15px;
+      margin: 22px 0;
+    }
+
+    .kpi {
+      border: 1px solid rgba(227, 232, 234, 0.95);
+      border-radius: 22px;
+      box-shadow: 0 18px 42px rgba(16, 24, 40, 0.08);
+      padding: 22px;
+      background: #ffffff;
+    }
+
+    .kpi.blue {
+      background: linear-gradient(180deg, #ffffff, var(--blue-bg));
+    }
+
+    .kpi.red {
+      background: linear-gradient(180deg, #ffffff, var(--red-bg));
+    }
+
+    .kpi.green {
+      background: linear-gradient(180deg, #ffffff, var(--mint));
+    }
+
+    .kpi.orange {
+      background: linear-gradient(180deg, #ffffff, var(--amber-bg));
+    }
+
+    .kpi-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #607089;
+      font-weight: 950;
+    }
+
+    .kpi-value {
+      font-size: 38px;
+      font-weight: 950;
+      margin-top: 10px;
+      letter-spacing: -0.05em;
+    }
+
+    .kpi-sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 7px;
+    }
+
+    .table-card {
+      background: linear-gradient(180deg, #ffffff, #fcfefd);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: 0 20px 50px rgba(16, 24, 40, 0.09);
+      overflow: hidden;
+    }
+
+    .table-head {
+      padding: 22px 26px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      background: linear-gradient(180deg, #ffffff, #fafffb);
+    }
+
+    .table-title {
+      font-size: 24px;
+      font-weight: 950;
+      letter-spacing: -0.035em;
+    }
+
+    .table-note {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .table-tools {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .search {
+      min-width: 300px;
+      border: 1px solid #d3dde3;
+      border-radius: 14px;
+      padding: 13px 15px;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      max-height: 660px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th,
+    td {
+      padding: 16px 16px;
+      border-bottom: 1px solid #edf0f2;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      background: #f6faf8;
+      color: #607089;
+      font-weight: 950;
+      z-index: 2;
+      cursor: pointer;
+    }
+
+    tbody tr:hover td {
+      background: #fbfefc;
+    }
+
+    .sku-name-cell {
+      max-width: 360px;
+      white-space: normal;
+      line-height: 1.3;
+    }
+
+    .badge-remove,
+    .badge-reason,
+    .badge-type {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 7px 12px;
+      font-weight: 950;
+      font-size: 12px;
+      letter-spacing: 0.01em;
+    }
+
+    .badge-remove {
+      background: linear-gradient(180deg, #fff1ef, #ffe6e2);
+      color: var(--red);
+    }
+
+    .badge-reason {
+      background: linear-gradient(180deg, #edf9f2, #dff4e8);
+      color: var(--green-2);
+    }
+
+    .badge-type {
+      background: linear-gradient(180deg, #f1f6ff, #e3eeff);
+      color: var(--blue-text);
+    }
+
+    .empty {
+      padding: 54px;
+      text-align: center;
+      color: var(--muted);
+      background: #ffffff;
+    }
+
+    .footer {
+      margin-top: 18px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 1250px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        display: none;
+      }
+
+      .grid-main {
+        grid-template-columns: 1fr;
+      }
+
+      .kpis {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 760px) {
+      .hero,
+      .content {
+        padding-left: 18px;
+        padding-right: 18px;
+      }
+
+      .controls,
+      .kpis,
+      .mini-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero h1 {
+        font-size: 30px;
+      }
+
+      .box-stack {
+        display: none;
+      }
+
+      .search {
+        min-width: 100%;
+      }
+    }
   </style>
 </head>
+
 <body>
-<div class="app">
-  <aside class="sidebar"><div class="brand"><div class="brand-title">The BARN</div><div class="brand-sub">Fresh Operations</div></div><div class="nav"><div class="nav-item">Freshness Filter</div></div></aside>
-  <main class="main">
-    <header class="hero"><div><h1>Freshness Filter</h1><p>Focused operational tool for freshness checks, storage removals and rack old-stock visibility.</p></div><div class="hero-art"><div class="box-stack"><div class="box">📦</div><div class="box">🥬</div><div class="box">🏷️</div></div><div class="hero-chip"><span class="hero-icon">📅</span><span id="currentDateLabel">--.--.----</span></div></div></header>
-    <section class="content">
-      <div class="grid-main">
-        <section class="card"><div class="card-head"><div class="card-title">Run Analysis</div><div class="card-note">Upload the current snapshot, choose area and minimum dates, then generate the full removal list.</div></div>
-          <div class="controls">
-            <div class="field"><label>Production Day Change Area</label><select id="selectedArea"><option value="Hybrid">Hybrid</option><option value="Kitting">Kitting</option></select></div>
-            <div class="field"><label>Unplanned Short Stock</label><select id="includeUnplanned"><option value="yes">Include scoped unplanned stock</option><option value="no">Ignore unplanned stock</option></select></div>
-            <div class="field"><label>Minimum Allowed ESD Date</label><input type="date" id="minEsdDate"></div>
-            <div class="field"><label>Minimum Allowed UBD Date</label><input type="date" id="minUbdDate"></div>
-            <div class="field drop"><label>Snapshot File</label><strong>Drop snapshot CSV here</strong><small>or choose the current inventory snapshot below</small><input type="file" id="snapshotFile" accept=".csv"><div class="file-pill" id="snapshotFileName">No snapshot selected</div></div>
-          </div><div class="toolbar"><button class="btn btn-primary" id="runBtn">Run Analysis</button><button class="btn btn-primary" id="downloadTmBtn" disabled>Download Remove CSV</button></div>
-        </section>
-        <section class="card rack-card"><div class="card-head"><div class="card-title">Rack Old Stock Check</div><div class="card-note">Enter a SKU to see where that SKU exists in FK / HL / AD racks, grouped by rack and TM count.</div></div>
-          <div class="controls"><div class="field"><label>Enter SKU</label><input type="text" id="skuLookupInput" placeholder="Example: SPI-00-50085-5"></div><div class="field"><label>&nbsp;</label><button class="btn btn-primary" id="skuLookupBtn">Check SKU</button></div></div>
-          <div class="result-box" id="skuCheckResult"><strong id="skuCheckTitle">SKU Result</strong><div class="mini-grid"><div><small>Area</small><div id="skuCheckArea"></div></div><div><small>Oldest Date In Racks</small><div id="skuCheckOldest"></div></div><div><small>Total TM IDs In Racks</small><div id="skuCheckCount"></div></div><div><small>Status</small><div id="skuCheckStatus"></div></div><div style="grid-column:1/-1"><small>Rack Summary</small><div class="rack-pills" id="skuCheckRacks"></div></div></div></div>
-        </section>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-title">The BARN</div>
+        <div class="brand-sub">Fresh Operations</div>
       </div>
-      <div class="kpis"><div class="kpi blue"><div class="kpi-label">Checked Pallets</div><div class="kpi-value" id="sumChecked">0</div><div class="kpi-sub">CR / AR storage rows checked</div></div><div class="kpi red"><div class="kpi-label">Remove Pallets</div><div class="kpi-value" id="sumRemove">0</div><div class="kpi-sub">Below selected minimum freshness date</div></div><div class="kpi green"><div class="kpi-label">Borderline</div><div class="kpi-value" id="borderlineCount">0</div><div class="kpi-sub">Exactly on minimum allowed date</div></div><div class="kpi orange"><div class="kpi-label">Expired</div><div class="kpi-value" id="expiredCount">0</div><div class="kpi-sub">Use by date earlier than today</div></div></div>
-      <section class="table-card"><div class="table-head"><div><div class="table-title">Removal List</div><div class="table-note">Only pallets that should be isolated from storage appear here.</div></div><div class="table-tools"><input class="search" type="text" id="resultsSearch" placeholder="Search TM id, SKU or location"><button class="btn btn-soft" id="clearResultsSearchBtn">Clear</button></div></div><div class="table-wrap"><table id="resultsTable"><thead><tr><th data-sort="Tm id">Tm id</th><th data-sort="Sku code">Sku code</th><th data-sort="Tm location">Tm location</th><th data-sort="Area">Area</th><th data-sort="Reason">Reason</th><th data-sort="Date type">Date type</th><th data-sort="Use by date">Use by date</th><th data-sort="Qty">Qty</th><th data-sort="Usable qty">Usable qty</th><th>Action</th></tr></thead><tbody></tbody></table></div><div class="empty" id="emptyState">No removal list yet.</div></section>
-      <div class="footer">Repository root must contain <strong>index.html</strong>, <strong>weekly_area.csv</strong> and <strong>weekly_rules.csv</strong>.</div>
-    </section>
-  </main>
-</div>
-<script>
-var STORAGE_PREFIXES=["CR","AR"],RACK_PREFIXES=["FK","HL","AD"],AREA_BY_BIN_PREFIX={HL:"Hybrid",AD:"Hybrid",FK:"Kitting"},DATE_TYPE_BY_PACKAGING_INFO={"03 Meal Kit":"ESD","04 Assembly":"ESD","02 Kühlpflichtig":"UBD"};
-var removeTmIds=[],removeRows=[],snapshotRowsCache=[],savedAreaText="",savedRulesText="",areaRowsCache=[],rulesRowsCache=[],areaMap=new Map(),dateTypeMap=new Map(),packagingMap=new Map(),rackExampleMap=new Map(),currentSort={key:"Tm id",dir:1};
-function normalizeHeader(s){return String(s||"").replace(/^\uFEFF/,"").trim()}function getField(row,names){for(var i=0;i<names.length;i++){if(row[names[i]]!==undefined)return row[names[i]]}var wanted=names.map(function(n){return String(n).toLowerCase()});var keys=Object.keys(row);for(var k=0;k<keys.length;k++){if(wanted.indexOf(String(keys[k]).toLowerCase())!==-1)return row[keys[k]]}return""}function getPrefix(v){return String(v||"").trim().toUpperCase().slice(0,2)}function isStorageLocation(loc){return STORAGE_PREFIXES.indexOf(getPrefix(loc))!==-1}function isRackLocation(loc){return RACK_PREFIXES.indexOf(getPrefix(loc))!==-1}function getAreaFromBinLocation(bin){return AREA_BY_BIN_PREFIX[getPrefix(bin)]||null}function getDateTypeFromPackagingInfo(info){return DATE_TYPE_BY_PACKAGING_INFO[String(info||"").trim()]||null}
-function normalizeDateTypeBySku(sku,packagingInfo){var s=String(sku||"").trim().toUpperCase(),p=String(packagingInfo||"").trim();if(s.indexOf("OTH-")===0)return"";if(s.indexOf("PHF-")===0)return"ESD";if(p||s)return"UBD";return""}
-function inferAreaFromPackagingOrPrefix(sku,packagingInfo){var s=String(sku||"").trim().toUpperCase(),p=String(packagingInfo||"").trim();if(s.indexOf("OTH-")===0)return"EXCLUDE";if(p==="03 Meal Kit")return"Kitting";if(p==="04 Assembly")return"Hybrid";if(s.indexOf("PHF-")===0)return"Kitting";if(s.indexOf("PTN-")===0||s.indexOf("CON-")===0||s.indexOf("BAK-")===0)return"Hybrid";return""}
-function parseDateFlexible(value){if(!value)return null;var raw=String(value).trim();if(!raw||raw==="00/00/0000")return null;var m=raw.match(/^(\d{1,2})[\.\/-](\d{1,2})[\.\/-](\d{2,4})$/);if(m){var y=parseInt(m[3],10);if(y<100)y+=2000;var d=new Date(y,parseInt(m[2],10)-1,parseInt(m[1],10));return isNaN(d.getTime())?null:d}m=raw.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);if(m){var d2=new Date(parseInt(m[1],10),parseInt(m[2],10)-1,parseInt(m[3],10));return isNaN(d2.getTime())?null:d2}var f=new Date(raw);return isNaN(f.getTime())?null:f}function formatDateDisplay(d){if(!d||isNaN(d.getTime()))return"";return String(d.getDate()).padStart(2,"0")+"."+String(d.getMonth()+1).padStart(2,"0")+"."+d.getFullYear()}
-function splitCsvLine(line){var res=[],cur="",q=false;for(var i=0;i<line.length;i++){var ch=line[i],nx=line[i+1];if(ch==='"'&&q&&nx==='"'){cur+='"';i++}else if(ch==='"')q=!q;else if(ch===','&&!q){res.push(cur);cur=""}else cur+=ch}res.push(cur);return res.map(function(v){return v.trim()})}function parseCsv(text){var lines=text.replace(/\r\n/g,"\n").replace(/\r/g,"\n").split("\n").filter(function(l){return l.trim()!==""});if(!lines.length)return[];var headers=splitCsvLine(lines[0]).map(normalizeHeader),rows=[];for(var i=1;i<lines.length;i++){var vals=splitCsvLine(lines[i]),row={};for(var h=0;h<headers.length;h++)row[headers[h]]=vals[h]!==undefined?vals[h]:"";rows.push(row)}return rows}function readFileAsText(file){return new Promise(function(resolve,reject){var r=new FileReader();r.onload=function(e){resolve(e.target.result)};r.onerror=reject;r.readAsText(file,"utf-8")})}function fetchText(url){return fetch(url+(url.indexOf("?")===-1?"?":"&")+"v="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.text():""}).catch(function(){return""})}
-function buildWeeklyMaps(){areaMap=new Map();dateTypeMap=new Map();packagingMap=new Map();rackExampleMap=new Map();for(var i=0;i<areaRowsCache.length;i++){var sku=String(getField(areaRowsCache[i],["ArticleSKU","SKU","Sku code"])||"").trim(),bin=String(getField(areaRowsCache[i],["BinLocationName","Tm location","Rack"])||"").trim(),area=getAreaFromBinLocation(bin);if(sku&&area&&!areaMap.has(sku))areaMap.set(sku,area);if(sku&&bin&&!rackExampleMap.has(sku))rackExampleMap.set(sku,bin)}for(var r=0;r<rulesRowsCache.length;r++){var s=String(getField(rulesRowsCache[r],["SKU","Sku code","ArticleSKU"])||"").trim(),p=String(getField(rulesRowsCache[r],["Packaging Info","Packaging info","packaging info"])||"").trim(),dt=normalizeDateTypeBySku(s,p);if(s&&p&&!packagingMap.has(s))packagingMap.set(s,p);if(s&&dt&&!dateTypeMap.has(s))dateTypeMap.set(s,dt)}}function loadDefaults(){return Promise.all([fetchText("weekly_area.csv"),fetchText("weekly_rules.csv")]).then(function(v){savedAreaText=v[0]||"";savedRulesText=v[1]||"";areaRowsCache=savedAreaText?parseCsv(savedAreaText):[];rulesRowsCache=savedRulesText?parseCsv(savedRulesText):[];buildWeeklyMaps();if(!savedAreaText||!savedRulesText)alert("Weekly files not loaded. Check exact names in repo root: weekly_area.csv and weekly_rules.csv")})}
-function buildSnapshotRackAreaMap(rows){var counts={};for(var i=0;i<rows.length;i++){var sku=String(getField(rows[i],["Sku code","SKU","ArticleSKU"])||"").trim(),loc=String(getField(rows[i],["Tm location","BinLocationName"])||"").trim(),area=getAreaFromBinLocation(loc);if(!sku||!area)continue;if(!counts[sku])counts[sku]={};counts[sku][area]=(counts[sku][area]||0)+1}var map=new Map();Object.keys(counts).forEach(function(sku){var best="",n=-1;Object.keys(counts[sku]).forEach(function(a){if(counts[sku][a]>n){best=a;n=counts[sku][a]}});if(best)map.set(sku,best)});return map}
-function downloadCsv(name,rows){if(!rows.length)return;var headers=Object.keys(rows[0]),lines=[headers.join(",")];rows.forEach(function(row){lines.push(headers.map(function(h){return '"'+String(row[h]==null?"":row[h]).replace(/"/g,'""')+'"'}).join(","))});var blob=new Blob([lines.join("\n")],{type:"text/csv;charset=utf-8;"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=name;a.click();URL.revokeObjectURL(url)}function updateCurrentDate(){document.getElementById("currentDateLabel").textContent=formatDateDisplay(new Date())}function setDateDefault(id,days){var d=new Date();d.setDate(d.getDate()+days);document.getElementById(id).value=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
-function matchesSearch(row,text){if(!text)return true;var s=Object.keys(row).map(function(k){return String(row[k]||"").toLowerCase()}).join(" ");return s.indexOf(text.toLowerCase())!==-1}function renderResults(rows){var search=document.getElementById("resultsSearch").value.trim(),body=document.querySelector("#resultsTable tbody"),empty=document.getElementById("emptyState");body.innerHTML="";var filtered=rows.filter(function(r){return matchesSearch(r,search)});filtered.sort(function(a,b){var av=(currentSort.key==="Qty"||currentSort.key==="Usable qty")?Number(a[currentSort.key]||0):String(a[currentSort.key]||""),bv=(currentSort.key==="Qty"||currentSort.key==="Usable qty")?Number(b[currentSort.key]||0):String(b[currentSort.key]||"");return av<bv?-1*currentSort.dir:av>bv?1*currentSort.dir:0});if(!filtered.length){empty.style.display="block";return}empty.style.display="none";filtered.forEach(function(r){var tr=document.createElement("tr"),cols=["Tm id","Sku code","Tm location","Area","Reason","Date type","Use by date","Qty","Usable qty"];cols.forEach(function(c){var td=document.createElement("td");if(c==="Reason")td.innerHTML='<span class="badge-reason">'+(r[c]||"")+'</span>';else if(c==="Date type")td.innerHTML='<span class="badge-type">'+(r[c]||"")+'</span>';else td.textContent=r[c]||"";tr.appendChild(td)});var td=document.createElement("td");td.innerHTML='<span class="badge-remove">Remove</span>';tr.appendChild(td);body.appendChild(tr)})}
-function updateSnapshotLabel(f){document.getElementById("snapshotFileName").textContent=f?f.name:"No snapshot selected"}function runSkuLookup(){var sku=String(document.getElementById("skuLookupInput").value||"").trim(),box=document.getElementById("skuCheckResult");if(!sku){box.style.display="none";return}var snapArea=buildSnapshotRackAreaMap(snapshotRowsCache),area=areaMap.get(sku)||snapArea.get(sku)||inferAreaFromPackagingOrPrefix(sku,packagingMap.get(sku)||"")||"Not found",rackRows=[];snapshotRowsCache.forEach(function(row){var s=String(getField(row,["Sku code","SKU","ArticleSKU"])||"").trim(),loc=String(getField(row,["Tm location","BinLocationName"])||"").trim();if(s===sku&&isRackLocation(loc))rackRows.push(row)});var counts={},oldest=null;rackRows.forEach(function(row){var loc=String(getField(row,["Tm location","BinLocationName"])||"").trim();counts[loc]=(counts[loc]||0)+1;var d=parseDateFlexible(getField(row,["Use by date","UBD","ESD"])||"");if(d&&(!oldest||d.getTime()<oldest.getTime()))oldest=d});var rackBox=document.getElementById("skuCheckRacks");rackBox.innerHTML="";var keys=Object.keys(counts).sort();if(!keys.length)rackBox.textContent="No rack stock found in loaded snapshot";else keys.forEach(function(k){var p=document.createElement("span");p.className="rack-pill";p.textContent=k+" ("+counts[k]+")";rackBox.appendChild(p)});document.getElementById("skuCheckTitle").textContent="SKU: "+sku;document.getElementById("skuCheckArea").textContent=area==="EXCLUDE"?"Excluded":area;document.getElementById("skuCheckOldest").textContent=oldest?formatDateDisplay(oldest):"Not found";document.getElementById("skuCheckCount").textContent=String(rackRows.length);document.getElementById("skuCheckStatus").textContent=rackRows.length?"Old stock visible in racks":"No rack stock found in loaded snapshot";box.style.display="block"}
-function runAnalysis(){var file=document.getElementById("snapshotFile").files[0];if(!file){alert("Please upload the snapshot file.");return}if(!savedAreaText||!savedRulesText){alert("Weekly defaults are not ready. Check weekly_area.csv and weekly_rules.csv in repo root.");return}var selected=document.getElementById("selectedArea").value,includeUnplanned=document.getElementById("includeUnplanned").value==="yes",minEsd=parseDateFlexible(document.getElementById("minEsdDate").value),minUbd=parseDateFlexible(document.getElementById("minUbdDate").value);if(!minEsd||!minUbd){alert("Please enter both minimum dates.");return}readFileAsText(file).then(function(text){snapshotRowsCache=parseCsv(text);var snapArea=buildSnapshotRackAreaMap(snapshotRowsCache);removeRows=[];removeTmIds=[];var checked=0,removed=0,expired=0,borderline=0,today=new Date();today=new Date(today.getFullYear(),today.getMonth(),today.getDate());snapshotRowsCache.forEach(function(row){var loc=String(getField(row,["Tm location","BinLocationName"])||"").trim();if(!isStorageLocation(loc))return;checked++;var sku=String(getField(row,["Sku code","SKU","ArticleSKU"])||"").trim(),tm=String(getField(row,["Tm id","TM ID","TmId"])||"").trim(),ubdRaw=String(getField(row,["Use by date","UBD","ESD"])||"").trim(),ubd=parseDateFlexible(ubdRaw),pack=packagingMap.get(sku)||"",dt=dateTypeMap.get(sku)||normalizeDateTypeBySku(sku,pack);if(!dt||!ubd)return;var area=areaMap.get(sku)||snapArea.get(sku)||"",reason="Planned area match";if(!area){var inferred=inferAreaFromPackagingOrPrefix(sku,pack);if(inferred==="EXCLUDE"||!inferred||!includeUnplanned)return;area=inferred;reason="Unplanned short stock"}if(area!==selected)return;var u=new Date(ubd.getFullYear(),ubd.getMonth(),ubd.getDate()),min=dt==="ESD"?minEsd:minUbd,minN=new Date(min.getFullYear(),min.getMonth(),min.getDate());if(u.getTime()<today.getTime())expired++;if(u.getTime()===minN.getTime())borderline++;if(u.getTime()<minN.getTime()){removed++;removeTmIds.push({"Tm id":tm});removeRows.push({"Tm id":tm,"Sku code":sku,"Tm location":loc,"Area":area,"Reason":reason,"Date type":dt,"Use by date":ubdRaw,"Qty":getField(row,["Qty"])||"","Usable qty":getField(row,["Usable qty"])||""})}});document.getElementById("sumChecked").textContent=String(checked);document.getElementById("sumRemove").textContent=String(removed);document.getElementById("expiredCount").textContent=String(expired);document.getElementById("borderlineCount").textContent=String(borderline);document.getElementById("downloadTmBtn").disabled=removeTmIds.length===0;renderResults(removeRows)}).catch(function(){alert("Error processing snapshot. Check CSV structure.")})}
-function setupDrag(){var dz=document.querySelector(".drop"),inp=document.getElementById("snapshotFile");["dragenter","dragover"].forEach(function(e){dz.addEventListener(e,function(ev){ev.preventDefault();dz.classList.add("dragover")})});["dragleave","drop"].forEach(function(e){dz.addEventListener(e,function(ev){ev.preventDefault();dz.classList.remove("dragover")})});dz.addEventListener("drop",function(e){if(e.dataTransfer.files&&e.dataTransfer.files[0]){inp.files=e.dataTransfer.files;updateSnapshotLabel(inp.files[0])}});inp.addEventListener("change",function(){updateSnapshotLabel(inp.files[0]||null)})}function initSort(){document.querySelectorAll("#resultsTable th[data-sort]").forEach(function(th){th.addEventListener("click",function(){var k=this.getAttribute("data-sort");currentSort=currentSort.key===k?{key:k,dir:currentSort.dir*-1}:{key:k,dir:1};renderResults(removeRows)})})}
-document.getElementById("runBtn").addEventListener("click",runAnalysis);document.getElementById("downloadTmBtn").addEventListener("click",function(){downloadCsv("remove_tm_ids.csv",removeTmIds)});document.getElementById("skuLookupBtn").addEventListener("click",runSkuLookup);document.getElementById("skuLookupInput").addEventListener("keydown",function(e){if(e.key==="Enter")runSkuLookup()});document.getElementById("resultsSearch").addEventListener("input",function(){renderResults(removeRows)});document.getElementById("clearResultsSearchBtn").addEventListener("click",function(){document.getElementById("resultsSearch").value="";renderResults(removeRows)});updateCurrentDate();setDateDefault("minEsdDate",2);setDateDefault("minUbdDate",5);setupDrag();initSort();renderResults([]);loadDefaults();
-</script>
+      <div class="nav">
+        <div class="nav-item">Freshness Filter</div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="hero">
+        <div>
+          <h1>The BARN Fresh Operations</h1>
+          <p>Premium operational dashboard for freshness control, storage pallet isolation and rack stock visibility.</p>
+        </div>
+        <div class="hero-art">
+          <div class="box-stack">
+            <div class="box">📦</div>
+            <div class="box">🥬</div>
+            <div class="box">🏷️</div>
+          </div>
+          <div class="hero-chip">
+            <span class="hero-icon">📅</span>
+            <span id="currentDateLabel">--.--.----</span>
+          </div>
+        </div>
+      </header>
+
+      <section class="content">
+        <div class="grid-main">
+          <section class="card">
+            <div class="card-head">
+              <div class="card-title">Run Analysis</div>
+              <div class="card-note">
+                Upload the current snapshot, choose the area and minimum allowed dates, then generate the full storage removal list.
+              </div>
+            </div>
+
+            <div class="controls">
+              <div class="field">
+                <label>Production Day Change Area</label>
+                <select id="selectedArea">
+                  <option value="Hybrid">Hybrid</option>
+                  <option value="Kitting">Kitting</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label>Unplanned Short Stock</label>
+                <select id="includeUnplanned">
+                  <option value="yes">Include scoped unplanned stock</option>
+                  <option value="no">Ignore unplanned stock</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label>Minimum Allowed ESD Date</label>
+                <input type="date" id="minEsdDate" />
+              </div>
+
+              <div class="field">
+                <label>Minimum Allowed UBD Date</label>
+                <input type="date" id="minUbdDate" />
+              </div>
+
+              <div class="field drop">
+                <label>Snapshot File</label>
+                <strong>Drop snapshot CSV here</strong>
+                <small>or choose the current inventory snapshot below</small>
+                <input type="file" id="snapshotFile" accept=".csv" />
+                <div class="file-pill" id="snapshotFileName">No snapshot selected</div>
+              </div>
+            </div>
+
+            <div class="toolbar">
+              <button class="btn btn-primary" id="runBtn">Run Analysis</button>
+              <button class="btn btn-primary" id="downloadTmBtn" disabled>Download Remove CSV</button>
+            </div>
+          </section>
+
+          <section class="card rack-card">
+            <div class="card-head">
+              <div class="card-title">Rack Old Stock Check</div>
+              <div class="card-note">
+                Enter a SKU to see where that SKU exists in FK / HL / AD racks, grouped by rack and TM count.
+              </div>
+            </div>
+
+            <div class="controls">
+              <div class="field">
+                <label>Enter SKU</label>
+                <input type="text" id="skuLookupInput" placeholder="Example: SPI-00-50085-5" />
+              </div>
+              <div class="field">
+                <label>&nbsp;</label>
+                <button class="btn btn-primary" id="skuLookupBtn">Check SKU</button>
+              </div>
+            </div>
+
+            <div class="result-box" id="skuCheckResult">
+              <strong id="skuCheckTitle">SKU Result</strong>
+              <div class="mini-grid">
+                <div>
+                  <small>Area</small>
+                  <div id="skuCheckArea"></div>
+                </div>
+                <div>
+                  <small>Oldest Date In Racks</small>
+                  <div id="skuCheckOldest"></div>
+                </div>
+                <div>
+                  <small>Total TM IDs In Racks</small>
+                  <div id="skuCheckCount"></div>
+                </div>
+                <div>
+                  <small>Status</small>
+                  <div id="skuCheckStatus"></div>
+                </div>
+                <div style="grid-column:1/-1">
+                  <small>Rack Summary</small>
+                  <div class="rack-pills" id="skuCheckRacks"></div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <div class="kpis">
+          <div class="kpi blue">
+            <div class="kpi-label">Checked Pallets</div>
+            <div class="kpi-value" id="sumChecked">0</div>
+            <div class="kpi-sub">CR / AR storage rows checked</div>
+          </div>
+
+          <div class="kpi red">
+            <div class="kpi-label">Remove Pallets</div>
+            <div class="kpi-value" id="sumRemove">0</div>
+            <div class="kpi-sub">Below selected minimum freshness date</div>
+          </div>
+
+          <div class="kpi green">
+            <div class="kpi-label">Borderline</div>
+            <div class="kpi-value" id="borderlineCount">0</div>
+            <div class="kpi-sub">Exactly on minimum allowed date</div>
+          </div>
+
+          <div class="kpi orange">
+            <div class="kpi-label">Expired</div>
+            <div class="kpi-value" id="expiredCount">0</div>
+            <div class="kpi-sub">Use by date earlier than today</div>
+          </div>
+        </div>
+
+        <section class="table-card">
+          <div class="table-head">
+            <div>
+              <div class="table-title">Removal List</div>
+              <div class="table-note">
+                Focused removal view with all storage pallets that fall below the minimum allowed freshness date.
+              </div>
+            </div>
+            <div class="table-tools">
+              <input class="search" type="text" id="resultsSearch" placeholder="Search TM id, SKU or location" />
+              <button class="btn btn-soft" id="clearResultsSearchBtn">Clear</button>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table id="resultsTable">
+              <thead>
+                <tr>
+                  <th data-sort="Tm id">Tm id</th>
+                  <th data-sort="Sku code">Sku code</th>
+                  <th data-sort="Sku name">SKU name</th>
+                  <th data-sort="Tm location">Tm location</th>
+                  <th data-sort="Area">Area</th>
+                  <th data-sort="Reason">Reason</th>
+                  <th data-sort="Date type">Date type</th>
+                  <th data-sort="Use by date">Use by date</th>
+                  <th data-sort="Qty">Qty</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+
+          <div class="empty" id="emptyState">No removal list yet.</div>
+        </section>
+
+        <div class="footer">
+          Repository root must contain <strong>index.html</strong>, <strong>weekly_area.csv</strong> and <strong>weekly_rules.csv</strong>.
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    var STORAGE_PREFIXES = ["CR", "AR"];
+    var RACK_PREFIXES = ["FK", "HL", "AD"];
+
+    var AREA_BY_BIN_PREFIX = {
+      HL: "Hybrid",
+      AD: "Hybrid",
+      FK: "Kitting"
+    };
+
+    var DATE_TYPE_BY_PACKAGING_INFO = {
+      "03 Meal Kit": "ESD",
+      "04 Assembly": "ESD",
+      "02 Kühlpflichtig": "UBD"
+    };
+
+    var removeTmIds = [];
+    var removeRows = [];
+    var snapshotRowsCache = [];
+
+    var savedAreaText = "";
+    var savedRulesText = "";
+    var areaRowsCache = [];
+    var rulesRowsCache = [];
+
+    var areaMap = new Map();
+    var dateTypeMap = new Map();
+    var packagingMap = new Map();
+    var rackExampleMap = new Map();
+
+    var currentSort = {
+      key: "Tm id",
+      dir: 1
+    };
+
+    function normalizeHeader(value) {
+      return String(value || "").replace(/^\uFEFF/, "").trim();
+    }
+
+    function getField(row, names) {
+      for (var i = 0; i < names.length; i++) {
+        if (row[names[i]] !== undefined) return row[names[i]];
+      }
+
+      var wanted = names.map(function(name) {
+        return String(name).toLowerCase();
+      });
+
+      var keys = Object.keys(row);
+      for (var k = 0; k < keys.length; k++) {
+        if (wanted.indexOf(String(keys[k]).toLowerCase()) !== -1) {
+          return row[keys[k]];
+        }
+      }
+
+      return "";
+    }
+
+    function getPrefix(value) {
+      return String(value || "").trim().toUpperCase().slice(0, 2);
+    }
+
+    function isStorageLocation(location) {
+      return STORAGE_PREFIXES.indexOf(getPrefix(location)) !== -1;
+    }
+
+    function isRackLocation(location) {
+      return RACK_PREFIXES.indexOf(getPrefix(location)) !== -1;
+    }
+
+    function getAreaFromBinLocation(binLocation) {
+      return AREA_BY_BIN_PREFIX[getPrefix(binLocation)] || null;
+    }
+
+    function getDateTypeFromPackagingInfo(packagingInfo) {
+      return DATE_TYPE_BY_PACKAGING_INFO[String(packagingInfo || "").trim()] || null;
+    }
+
+    // FSQA date-type rule:
+    // OTH is excluded. PHF uses ESD. Everything else with a known SKU/rule is UBD.
+    function normalizeDateTypeBySku(sku, packagingInfo) {
+      var skuUpper = String(sku || "").trim().toUpperCase();
+      var packaging = String(packagingInfo || "").trim();
+
+      if (skuUpper.indexOf("OTH-") === 0) return "";
+      if (skuUpper.indexOf("PHF-") === 0) return "ESD";
+      if (packaging || skuUpper) return "UBD";
+
+      return "";
+    }
+
+    // Area inference for out-of-box/unplanned cases.
+    // Weekly area remains the primary source. This is only fallback logic.
+    function inferAreaFromPackagingOrPrefix(sku, packagingInfo) {
+      var skuUpper = String(sku || "").trim().toUpperCase();
+      var packaging = String(packagingInfo || "").trim();
+
+      if (skuUpper.indexOf("OTH-") === 0) return "EXCLUDE";
+      if (packaging === "03 Meal Kit") return "Kitting";
+      if (packaging === "04 Assembly") return "Hybrid";
+      if (skuUpper.indexOf("PHF-") === 0) return "Kitting";
+      if (
+        skuUpper.indexOf("PTN-") === 0 ||
+        skuUpper.indexOf("CON-") === 0 ||
+        skuUpper.indexOf("BAK-") === 0
+      ) {
+        return "Hybrid";
+      }
+
+      return "";
+    }
+
+    function parseDateFlexible(value) {
+      if (!value) return null;
+
+      var raw = String(value).trim();
+      if (!raw || raw === "00/00/0000") return null;
+
+      var match = raw.match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{2,4})$/);
+      if (match) {
+        var year = parseInt(match[3], 10);
+        if (year < 100) year += 2000;
+
+        var parsed = new Date(
+          year,
+          parseInt(match[2], 10) - 1,
+          parseInt(match[1], 10)
+        );
+
+        return isNaN(parsed.getTime()) ? null : parsed;
+      }
+
+      match = raw.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+      if (match) {
+        var parsedIso = new Date(
+          parseInt(match[1], 10),
+          parseInt(match[2], 10) - 1,
+          parseInt(match[3], 10)
+        );
+
+        return isNaN(parsedIso.getTime()) ? null : parsedIso;
+      }
+
+      var fallback = new Date(raw);
+      return isNaN(fallback.getTime()) ? null : fallback;
+    }
+
+    function formatDateDisplay(date) {
+      if (!date || isNaN(date.getTime())) return "";
+
+      return (
+        String(date.getDate()).padStart(2, "0") +
+        "." +
+        String(date.getMonth() + 1).padStart(2, "0") +
+        "." +
+        date.getFullYear()
+      );
+    }
+
+    function splitCsvLine(line) {
+      var result = [];
+      var current = "";
+      var inQuotes = false;
+
+      for (var i = 0; i < line.length; i++) {
+        var char = line[i];
+        var next = line[i + 1];
+
+        if (char === '"' && inQuotes && next === '"') {
+          current += '"';
+          i++;
+        } else if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === "," && !inQuotes) {
+          result.push(current);
+          current = "";
+        } else {
+          current += char;
+        }
+      }
+
+      result.push(current);
+
+      return result.map(function(value) {
+        return value.trim();
+      });
+    }
+
+    function parseCsv(text) {
+      var lines = text
+        .replace(/\r\n/g, "\n")
+        .replace(/\r/g, "\n")
+        .split("\n")
+        .filter(function(line) {
+          return line.trim() !== "";
+        });
+
+      if (!lines.length) return [];
+
+      var headers = splitCsvLine(lines[0]).map(normalizeHeader);
+      var rows = [];
+
+      for (var i = 1; i < lines.length; i++) {
+        var values = splitCsvLine(lines[i]);
+        var row = {};
+
+        for (var h = 0; h < headers.length; h++) {
+          row[headers[h]] = values[h] !== undefined ? values[h] : "";
+        }
+
+        rows.push(row);
+      }
+
+      return rows;
+    }
+
+    function readFileAsText(file) {
+      return new Promise(function(resolve, reject) {
+        var reader = new FileReader();
+        reader.onload = function(event) {
+          resolve(event.target.result);
+        };
+        reader.onerror = reject;
+        reader.readAsText(file, "utf-8");
+      });
+    }
+
+    function fetchText(url) {
+      var cacheBustedUrl =
+        url + (url.indexOf("?") === -1 ? "?" : "&") + "v=" + Date.now();
+
+      return fetch(cacheBustedUrl, { cache: "no-store" })
+        .then(function(response) {
+          return response.ok ? response.text() : "";
+        })
+        .catch(function() {
+          return "";
+        });
+    }
+
+    function buildWeeklyMaps() {
+      areaMap = new Map();
+      dateTypeMap = new Map();
+      packagingMap = new Map();
+      rackExampleMap = new Map();
+
+      for (var i = 0; i < areaRowsCache.length; i++) {
+        var areaSku = String(getField(areaRowsCache[i], ["ArticleSKU", "SKU", "Sku code"]) || "").trim();
+        var bin = String(getField(areaRowsCache[i], ["BinLocationName", "Tm location", "Rack"]) || "").trim();
+        var area = getAreaFromBinLocation(bin);
+
+        if (areaSku && area && !areaMap.has(areaSku)) {
+          areaMap.set(areaSku, area);
+        }
+
+        if (areaSku && bin && !rackExampleMap.has(areaSku)) {
+          rackExampleMap.set(areaSku, bin);
+        }
+      }
+
+      for (var r = 0; r < rulesRowsCache.length; r++) {
+        var rulesSku = String(getField(rulesRowsCache[r], ["SKU", "Sku code", "ArticleSKU"]) || "").trim();
+        var packagingInfo = String(getField(rulesRowsCache[r], ["Packaging Info", "Packaging info", "packaging info"]) || "").trim();
+        var dateType = normalizeDateTypeBySku(rulesSku, packagingInfo);
+
+        if (rulesSku && packagingInfo && !packagingMap.has(rulesSku)) {
+          packagingMap.set(rulesSku, packagingInfo);
+        }
+
+        if (rulesSku && dateType && !dateTypeMap.has(rulesSku)) {
+          dateTypeMap.set(rulesSku, dateType);
+        }
+      }
+    }
+
+    function loadDefaults() {
+      return Promise.all([
+        fetchText("weekly_area.csv"),
+        fetchText("weekly_rules.csv")
+      ]).then(function(values) {
+        savedAreaText = values[0] || "";
+        savedRulesText = values[1] || "";
+
+        areaRowsCache = savedAreaText ? parseCsv(savedAreaText) : [];
+        rulesRowsCache = savedRulesText ? parseCsv(savedRulesText) : [];
+
+        buildWeeklyMaps();
+
+        if (!savedAreaText || !savedRulesText) {
+          alert("Weekly files not loaded. Check exact names in repo root: weekly_area.csv and weekly_rules.csv");
+        }
+      });
+    }
+
+    function buildSnapshotRackAreaMap(rows) {
+      var counts = {};
+
+      for (var i = 0; i < rows.length; i++) {
+        var sku = String(getField(rows[i], ["Sku code", "SKU", "ArticleSKU"]) || "").trim();
+        var location = String(getField(rows[i], ["Tm location", "BinLocationName"]) || "").trim();
+        var area = getAreaFromBinLocation(location);
+
+        if (!sku || !area) continue;
+
+        if (!counts[sku]) counts[sku] = {};
+        counts[sku][area] = (counts[sku][area] || 0) + 1;
+      }
+
+      var map = new Map();
+
+      Object.keys(counts).forEach(function(sku) {
+        var bestArea = "";
+        var bestCount = -1;
+
+        Object.keys(counts[sku]).forEach(function(area) {
+          if (counts[sku][area] > bestCount) {
+            bestArea = area;
+            bestCount = counts[sku][area];
+          }
+        });
+
+        if (bestArea) map.set(sku, bestArea);
+      });
+
+      return map;
+    }
+
+    function downloadCsv(filename, rows) {
+      if (!rows.length) return;
+
+      var headers = Object.keys(rows[0]);
+      var lines = [headers.join(",")];
+
+      rows.forEach(function(row) {
+        lines.push(headers.map(function(header) {
+          return '"' + String(row[header] == null ? "" : row[header]).replace(/"/g, '""') + '"';
+        }).join(","));
+      });
+
+      var blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8;" });
+      var url = URL.createObjectURL(blob);
+      var anchor = document.createElement("a");
+
+      anchor.href = url;
+      anchor.download = filename;
+      anchor.click();
+
+      URL.revokeObjectURL(url);
+    }
+
+    function updateCurrentDate() {
+      document.getElementById("currentDateLabel").textContent = formatDateDisplay(new Date());
+    }
+
+    function setDateDefault(id, daysAhead) {
+      var date = new Date();
+      date.setDate(date.getDate() + daysAhead);
+
+      document.getElementById(id).value =
+        date.getFullYear() +
+        "-" +
+        String(date.getMonth() + 1).padStart(2, "0") +
+        "-" +
+        String(date.getDate()).padStart(2, "0");
+    }
+
+    function matchesSearch(row, text) {
+      if (!text) return true;
+
+      var haystack = Object.keys(row).map(function(key) {
+        return String(row[key] || "").toLowerCase();
+      }).join(" ");
+
+      return haystack.indexOf(text.toLowerCase()) !== -1;
+    }
+
+    function renderResults(rows) {
+      var search = document.getElementById("resultsSearch").value.trim();
+      var tbody = document.querySelector("#resultsTable tbody");
+      var empty = document.getElementById("emptyState");
+
+      tbody.innerHTML = "";
+
+      var filtered = rows.filter(function(row) {
+        return matchesSearch(row, search);
+      });
+
+      filtered.sort(function(a, b) {
+        var av = currentSort.key === "Qty" ? Number(a[currentSort.key] || 0) : String(a[currentSort.key] || "");
+        var bv = currentSort.key === "Qty" ? Number(b[currentSort.key] || 0) : String(b[currentSort.key] || "");
+
+        if (av < bv) return -1 * currentSort.dir;
+        if (av > bv) return 1 * currentSort.dir;
+        return 0;
+      });
+
+      if (!filtered.length) {
+        empty.style.display = "block";
+        return;
+      }
+
+      empty.style.display = "none";
+
+      filtered.forEach(function(row) {
+        var tr = document.createElement("tr");
+
+        var columns = [
+          "Tm id",
+          "Sku code",
+          "Sku name",
+          "Tm location",
+          "Area",
+          "Reason",
+          "Date type",
+          "Use by date",
+          "Qty"
+        ];
+
+        columns.forEach(function(column) {
+          var td = document.createElement("td");
+
+          if (column === "Reason") {
+            td.innerHTML = '<span class="badge-reason">' + (row[column] || "") + "</span>";
+          } else if (column === "Date type") {
+            td.innerHTML = '<span class="badge-type">' + (row[column] || "") + "</span>";
+          } else {
+            td.textContent = row[column] || "";
+          }
+
+          if (column === "Sku name") {
+            td.className = "sku-name-cell";
+          }
+
+          tr.appendChild(td);
+        });
+
+        var actionTd = document.createElement("td");
+        actionTd.innerHTML = '<span class="badge-remove">Remove</span>';
+        tr.appendChild(actionTd);
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    function updateSnapshotLabel(file) {
+      document.getElementById("snapshotFileName").textContent = file ? file.name : "No snapshot selected";
+    }
+
+    function runSkuLookup() {
+      var sku = String(document.getElementById("skuLookupInput").value || "").trim();
+      var resultBox = document.getElementById("skuCheckResult");
+
+      if (!sku) {
+        resultBox.style.display = "none";
+        return;
+      }
+
+      var snapshotAreaMap = buildSnapshotRackAreaMap(snapshotRowsCache);
+
+      var area =
+        areaMap.get(sku) ||
+        snapshotAreaMap.get(sku) ||
+        inferAreaFromPackagingOrPrefix(sku, packagingMap.get(sku) || "") ||
+        "Not found";
+
+      var rackRows = [];
+
+      snapshotRowsCache.forEach(function(row) {
+        var rowSku = String(getField(row, ["Sku code", "SKU", "ArticleSKU"]) || "").trim();
+        var location = String(getField(row, ["Tm location", "BinLocationName"]) || "").trim();
+
+        if (rowSku === sku && isRackLocation(location)) {
+          rackRows.push(row);
+        }
+      });
+
+      var counts = {};
+      var oldest = null;
+
+      rackRows.forEach(function(row) {
+        var location = String(getField(row, ["Tm location", "BinLocationName"]) || "").trim();
+
+        counts[location] = (counts[location] || 0) + 1;
+
+        var date = parseDateFlexible(getField(row, ["Use by date", "UBD", "ESD"]) || "");
+        if (date && (!oldest || date.getTime() < oldest.getTime())) {
+          oldest = date;
+        }
+      });
+
+      var rackBox = document.getElementById("skuCheckRacks");
+      rackBox.innerHTML = "";
+
+      var keys = Object.keys(counts).sort();
+
+      if (!keys.length) {
+        rackBox.textContent = "No rack stock found in loaded snapshot";
+      } else {
+        keys.forEach(function(key) {
+          var pill = document.createElement("span");
+          pill.className = "rack-pill";
+          pill.textContent = key + " (" + counts[key] + ")";
+          rackBox.appendChild(pill);
+        });
+      }
+
+      document.getElementById("skuCheckTitle").textContent = "SKU: " + sku;
+      document.getElementById("skuCheckArea").textContent = area === "EXCLUDE" ? "Excluded" : area;
+      document.getElementById("skuCheckOldest").textContent = oldest ? formatDateDisplay(oldest) : "Not found";
+      document.getElementById("skuCheckCount").textContent = String(rackRows.length);
+      document.getElementById("skuCheckStatus").textContent = rackRows.length ? "Old stock visible in racks" : "No rack stock found in loaded snapshot";
+
+      resultBox.style.display = "block";
+    }
+
+    function runAnalysis() {
+      var file = document.getElementById("snapshotFile").files[0];
+
+      if (!file) {
+        alert("Please upload the snapshot file.");
+        return;
+      }
+
+      if (!savedAreaText || !savedRulesText) {
+        alert("Weekly defaults are not ready. Check weekly_area.csv and weekly_rules.csv in repo root.");
+        return;
+      }
+
+      var selectedArea = document.getElementById("selectedArea").value;
+      var includeUnplanned = document.getElementById("includeUnplanned").value === "yes";
+      var minEsdDate = parseDateFlexible(document.getElementById("minEsdDate").value);
+      var minUbdDate = parseDateFlexible(document.getElementById("minUbdDate").value);
+
+      if (!minEsdDate || !minUbdDate) {
+        alert("Please enter both minimum dates.");
+        return;
+      }
+
+      readFileAsText(file).then(function(text) {
+        snapshotRowsCache = parseCsv(text);
+        var snapshotAreaMap = buildSnapshotRackAreaMap(snapshotRowsCache);
+
+        removeRows = [];
+        removeTmIds = [];
+
+        var checked = 0;
+        var removed = 0;
+        var expired = 0;
+        var borderline = 0;
+
+        var today = new Date();
+        today = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+        snapshotRowsCache.forEach(function(row) {
+          var location = String(getField(row, ["Tm location", "BinLocationName"]) || "").trim();
+
+          if (!isStorageLocation(location)) return;
+
+          checked++;
+
+          var sku = String(getField(row, ["Sku code", "SKU", "ArticleSKU"]) || "").trim();
+          var tmId = String(getField(row, ["Tm id", "TM ID", "TmId"]) || "").trim();
+          var useByRaw = String(getField(row, ["Use by date", "UBD", "ESD"]) || "").trim();
+          var useByDate = parseDateFlexible(useByRaw);
+          var packagingInfo = packagingMap.get(sku) || "";
+          var dateType = dateTypeMap.get(sku) || normalizeDateTypeBySku(sku, packagingInfo);
+
+          if (!dateType || !useByDate) return;
+
+          var area = areaMap.get(sku) || snapshotAreaMap.get(sku) || "";
+          var reason = "Planned area match";
+
+          if (!area) {
+            var inferred = inferAreaFromPackagingOrPrefix(sku, packagingInfo);
+
+            if (inferred === "EXCLUDE" || !inferred || !includeUnplanned) return;
+
+            area = inferred;
+            reason = "Unplanned short stock";
+          }
+
+          if (area !== selectedArea) return;
+
+          var normalizedUseByDate = new Date(
+            useByDate.getFullYear(),
+            useByDate.getMonth(),
+            useByDate.getDate()
+          );
+
+          var minAllowedDate = dateType === "ESD" ? minEsdDate : minUbdDate;
+          var normalizedMinimum = new Date(
+            minAllowedDate.getFullYear(),
+            minAllowedDate.getMonth(),
+            minAllowedDate.getDate()
+          );
+
+          if (normalizedUseByDate.getTime() < today.getTime()) expired++;
+          if (normalizedUseByDate.getTime() === normalizedMinimum.getTime()) borderline++;
+
+          // Minimum allowed date means earliest usable date.
+          // Less than minimum = remove. Equal to minimum = keep.
+          if (normalizedUseByDate.getTime() < normalizedMinimum.getTime()) {
+            removed++;
+
+            removeTmIds.push({ "Tm id": tmId });
+
+            removeRows.push({
+              "Tm id": tmId,
+              "Sku code": sku,
+              "Sku name": getField(row, ["Sku description", "Sku name", "Ingredient"]) || "",
+              "Tm location": location,
+              "Area": area,
+              "Reason": reason,
+              "Date type": dateType,
+              "Use by date": useByRaw,
+              "Qty": getField(row, ["Qty"]) || ""
+            });
+          }
+        });
+
+        document.getElementById("sumChecked").textContent = String(checked);
+        document.getElementById("sumRemove").textContent = String(removed);
+        document.getElementById("expiredCount").textContent = String(expired);
+        document.getElementById("borderlineCount").textContent = String(borderline);
+        document.getElementById("downloadTmBtn").disabled = removeTmIds.length === 0;
+
+        renderResults(removeRows);
+      }).catch(function() {
+        alert("Error processing snapshot. Check CSV structure.");
+      });
+    }
+
+    function setupDrag() {
+      var dropZone = document.querySelector(".drop");
+      var input = document.getElementById("snapshotFile");
+
+      ["dragenter", "dragover"].forEach(function(eventName) {
+        dropZone.addEventListener(eventName, function(event) {
+          event.preventDefault();
+          dropZone.classList.add("dragover");
+        });
+      });
+
+      ["dragleave", "drop"].forEach(function(eventName) {
+        dropZone.addEventListener(eventName, function(event) {
+          event.preventDefault();
+          dropZone.classList.remove("dragover");
+        });
+      });
+
+      dropZone.addEventListener("drop", function(event) {
+        if (event.dataTransfer.files && event.dataTransfer.files[0]) {
+          input.files = event.dataTransfer.files;
+          updateSnapshotLabel(input.files[0]);
+        }
+      });
+
+      input.addEventListener("change", function() {
+        updateSnapshotLabel(input.files[0] || null);
+      });
+    }
+
+    function initSort() {
+      document.querySelectorAll("#resultsTable th[data-sort]").forEach(function(th) {
+        th.addEventListener("click", function() {
+          var key = this.getAttribute("data-sort");
+
+          currentSort = currentSort.key === key
+            ? { key: key, dir: currentSort.dir * -1 }
+            : { key: key, dir: 1 };
+
+          renderResults(removeRows);
+        });
+      });
+    }
+
+    document.getElementById("runBtn").addEventListener("click", runAnalysis);
+
+    document.getElementById("downloadTmBtn").addEventListener("click", function() {
+      downloadCsv("remove_tm_ids.csv", removeTmIds);
+    });
+
+    document.getElementById("skuLookupBtn").addEventListener("click", runSkuLookup);
+
+    document.getElementById("skuLookupInput").addEventListener("keydown", function(event) {
+      if (event.key === "Enter") runSkuLookup();
+    });
+
+    document.getElementById("resultsSearch").addEventListener("input", function() {
+      renderResults(removeRows);
+    });
+
+    document.getElementById("clearResultsSearchBtn").addEventListener("click", function() {
+      document.getElementById("resultsSearch").value = "";
+      renderResults(removeRows);
+    });
+
+    updateCurrentDate();
+    setDateDefault("minEsdDate", 2);
+    setDateDefault("minUbdDate", 5);
+    setupDrag();
+    initSort();
+    renderResults([]);
+    loadDefaults();
+  </script>
 </body>
 </html>
