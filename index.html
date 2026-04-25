@@ -287,8 +287,20 @@
     function getDateTypeFromPackagingInfo(packagingInfo) { return DATE_TYPE_BY_PACKAGING_INFO[String(packagingInfo || "").trim()] || null; }
     function normalizeDateTypeBySku(sku, packagingInfo) {
       var rawSku = String(sku || "").trim().toUpperCase();
+      if (rawSku.indexOf("OTH-") === 0) return "";
+      if (rawSku.indexOf("PHF-") === 0) return "ESD";
       if (rawSku.indexOf("BAK-") === 0) return "UBD";
+      if (rawSku.indexOf("PTN-") === 0) return "UBD";
+      if (rawSku.indexOf("CON-") === 0) return "UBD";
       return getDateTypeFromPackagingInfo(packagingInfo);
+    }
+    function inferUnplannedAreaBySku(sku) {
+      var rawSku = String(sku || "").trim().toUpperCase();
+      if (rawSku.indexOf("OTH-") === 0) return "EXCLUDE";
+      if (rawSku.indexOf("PHF-") === 0) return "Kitting";
+      if (rawSku.indexOf("PTN-") === 0) return "Hybrid";
+      if (rawSku.indexOf("CON-") === 0) return "Hybrid";
+      return "";
     }
     function parseDateFlexible(value) {
       if (!value) return null;
@@ -499,11 +511,19 @@
           var useByDateRaw = String(getField(row, ["Use by date", "UBD", "ESD"]) || "").trim();
           var useByDate = parseDateFlexible(useByDateRaw);
           var area = areaMap.get(sku) || snapshotAreaMap.get(sku) || "";
-          var itemDateType = dateTypeMap.get(sku) || "";
+          var itemDateType = dateTypeMap.get(sku) || normalizeDateTypeBySku(sku, "");
           if (!itemDateType || !useByDate) continue;
-          var isPlannedForSelectedArea = area === selectedArea;
-          var isUnplanned = !area;
-          if (!isPlannedForSelectedArea && !(includeUnplanned && isUnplanned)) continue;
+
+          var reason = "Planned area match";
+          if (!area) {
+            var inferredArea = inferUnplannedAreaBySku(sku);
+            if (inferredArea === "EXCLUDE") continue;
+            if (!inferredArea) continue;
+            area = inferredArea;
+            reason = "Unplanned short stock";
+          }
+
+          if (area !== selectedArea) continue;
           var normalizedUseBy = new Date(useByDate.getFullYear(), useByDate.getMonth(), useByDate.getDate());
           var minAllowedDate = itemDateType === "ESD" ? minEsdDate : minUbdDate;
           var minNormalized = new Date(minAllowedDate.getFullYear(), minAllowedDate.getMonth(), minAllowedDate.getDate());
@@ -512,7 +532,7 @@
           if (normalizedUseBy.getTime() < minNormalized.getTime()) {
             removed++;
             removeTmIds.push({ "Tm id": tmId });
-            removeRows.push({ "Tm id": tmId, "Sku code": sku, "Tm location": tmLocation, "Area": area || "Unplanned", "Reason": area ? "Planned area match" : "Unplanned short stock", "Date type": itemDateType, "Use by date": useByDateRaw, "Qty": getField(row, ["Qty"]) || "", "Usable qty": getField(row, ["Usable qty"]) || "" });
+            removeRows.push({ "Tm id": tmId, "Sku code": sku, "Tm location": tmLocation, "Area": area, "Reason": reason, "Date type": itemDateType, "Use by date": useByDateRaw, "Qty": getField(row, ["Qty"]) || "", "Usable qty": getField(row, ["Usable qty"]) || "" });
           }
         }
         document.getElementById("sumChecked").textContent = String(checked);
