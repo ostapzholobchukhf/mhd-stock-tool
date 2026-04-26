@@ -680,7 +680,7 @@
             <div class="layout-head">
               <div>
                 <div class="layout-title">Production Layout Balance</div>
-                <div class="layout-note">Visual stock distribution by planned production area. Hybrid = HL racks, Kitting = FK racks, Addon = AD racks.</div>
+                <div class="layout-note">Visual stock distribution by physical production area. Hybrid = HL by station/line, Kitting = FK32 → FK01 grouped by line, Addon = AD08 → AD01 racks.</div>
               </div>
               <div class="layout-tabs">
                 <button class="layout-tab active" data-layout-area="Hybrid">Hybrid</button>
@@ -1021,39 +1021,48 @@
       return "FK" + String(Number(m[1])).padStart(2, "0");
     }
 
-    function getHybridKey(location) {
+    function parseHybridLocation(location) {
       const loc = normalizeLocationKey(location);
-      const m = loc.match(/^HL-(\d{2})-(\d{2})-[A-Z]-([0-9]+[A-Z])/);
-      if (m) return "HL-" + m[1] + "-" + m[2] + "-" + m[3];
-      return loc.startsWith("HL") ? loc.split("-").slice(0, 5).join("-") : "";
+      const m = loc.match(/^HL-(\d{2})-(\d{2})-(.+)$/);
+      if (!m) return null;
+      return { line: Number(m[1]), station: Number(m[2]), detail: m[3], exact: loc };
+    }
+
+    function getHybridKey(location, exactMode) {
+      const parsed = parseHybridLocation(location);
+      if (!parsed) return normalizeLocationKey(location).startsWith("HL") ? normalizeLocationKey(location) : "";
+      if (exactMode) return parsed.exact;
+      return "HL-" + String(parsed.line).padStart(2, "0") + "-" + String(parsed.station).padStart(2, "0");
     }
 
     function getAddonKey(location) {
       const loc = normalizeLocationKey(location);
-      const m = loc.match(/^AD-(\d{2})-([BF])-([0-9]{1,2}[A-D])/);
+      const m = loc.match(/^AD-(\d{2})-([A-Z])-([0-9]{1,2}[A-Z])/);
       if (m) return "AD-" + m[1] + "-" + m[2] + "-" + m[3];
       return loc.startsWith("AD") ? loc : "";
     }
 
-    function getProductionLayoutKey(area, location) {
+    function getProductionLayoutKey(area, location, exactMode) {
       if (area === "Kitting") return getKittingKey(location);
       if (area === "Addon") return getAddonKey(location);
-      return getHybridKey(location);
+      return getHybridKey(location, exactMode);
     }
 
     function buildKittingLayoutKeys() {
       const keys = [];
-      for (let i = 1; i <= 32; i++) keys.push("FK" + String(i).padStart(2, "0"));
+      for (let line = 4; line >= 1; line--) {
+        const end = line * 8;
+        const start = end - 7;
+        for (let i = end; i >= start; i--) keys.push("FK" + String(i).padStart(2, "0"));
+      }
       return keys;
     }
 
     function buildHybridLayoutKeys() {
       const keys = [];
-      for (let line = 1; line <= 2; line++) {
-        for (let station = 1; station <= 14; station++) {
-          for (let portion = 1; portion <= 3; portion++) {
-            keys.push("HL-" + String(line).padStart(2, "0") + "-" + String(station).padStart(2, "0") + "-" + portion + "P");
-          }
+      for (let station = 14; station >= 1; station--) {
+        for (let line = 10; line >= 1; line--) {
+          keys.push("HL-" + String(line).padStart(2, "0") + "-" + String(station).padStart(2, "0"));
         }
       }
       return keys;
@@ -1061,14 +1070,14 @@
 
     function buildAddonLayoutKeys() {
       const keys = [];
-      const lettersB = ["A","B","C","D"];
-      const lettersF = ["A","B"];
-      for (let ad = 1; ad <= 8; ad++) {
+      const lettersB = ["D", "C", "B", "A"];
+      const lettersF = ["B", "A"];
+      for (let ad = 8; ad >= 1; ad--) {
         const maxB = ad === 1 ? 8 : 16;
-        for (let pos = 1; pos <= maxB; pos++) {
+        for (let pos = maxB; pos >= 1; pos--) {
           lettersB.forEach(letter => keys.push("AD-" + String(ad).padStart(2, "0") + "-B-" + pos + letter));
         }
-        for (let pos = 1; pos <= 8; pos++) {
+        for (let pos = 8; pos >= 1; pos--) {
           lettersF.forEach(letter => keys.push("AD-" + String(ad).padStart(2, "0") + "-F-" + pos + letter));
         }
       }
@@ -1081,6 +1090,39 @@
       return buildHybridLayoutKeys();
     }
 
+    function compareProductionKeys(area, a, b) {
+      if (area === "Kitting") {
+        const na = Number((String(a).match(/\d+/) || [0])[0]);
+        const nb = Number((String(b).match(/\d+/) || [0])[0]);
+        return nb - na;
+      }
+
+      if (area === "Addon") {
+        const pa = String(a).match(/^AD-(\d{2})-([A-Z])-([0-9]+)([A-Z])/);
+        const pb = String(b).match(/^AD-(\d{2})-([A-Z])-([0-9]+)([A-Z])/);
+        if (pa && pb) {
+          const adDiff = Number(pb[1]) - Number(pa[1]);
+          if (adDiff) return adDiff;
+          const sectionDiff = pb[2].localeCompare(pa[2]);
+          if (sectionDiff) return sectionDiff;
+          const posDiff = Number(pb[3]) - Number(pa[3]);
+          if (posDiff) return posDiff;
+          return pb[4].localeCompare(pa[4]);
+        }
+      }
+
+      const ha = String(a).match(/^HL-(\d{2})-(\d{2})/);
+      const hb = String(b).match(/^HL-(\d{2})-(\d{2})/);
+      if (ha && hb) {
+        const stationDiff = Number(hb[2]) - Number(ha[2]);
+        if (stationDiff) return stationDiff;
+        const lineDiff = Number(hb[1]) - Number(ha[1]);
+        if (lineDiff) return lineDiff;
+      }
+
+      return String(a).localeCompare(String(b));
+    }
+
     function getCellLevel(entry) {
       if (!entry || entry.tmCount === 0) return "empty";
       if (entry.skus.size > 1) return "mixed";
@@ -1089,15 +1131,27 @@
       return "high";
     }
 
-    function buildProductionLayoutData(rows) {
-      const data = { Hybrid: {}, Kitting: {}, Addon: {} };
+    function rowMatchesLayoutQuery(row, query) {
+      if (!query) return true;
+      const sku = String(getField(row, ["Sku code", "SKU", "ArticleSKU"]) || "").toLowerCase();
+      const skuName = String(getField(row, ["Sku description", "Sku name", "Ingredient", "ArticleDescription"]) || "").toLowerCase();
+      const loc = String(getField(row, ["Tm location", "BinLocationName"]) || "").toLowerCase();
+      const tm = String(getField(row, ["Tm id", "TM ID", "TmId"]) || "").toLowerCase();
+      return sku.includes(query) || skuName.includes(query) || loc.includes(query) || tm.includes(query);
+    }
+
+    function buildProductionLayoutData(rows, area, query) {
+      const data = {};
+      const exactMode = Boolean(query);
 
       rows.forEach(row => {
-        const location = String(getField(row, ["Tm location", "BinLocationName"]) || "").trim();
-        const area = getProductionAreaFromLocation(location);
-        if (!area) return;
+        if (!rowMatchesLayoutQuery(row, query)) return;
 
-        const key = getProductionLayoutKey(area, location);
+        const location = String(getField(row, ["Tm location", "BinLocationName"]) || "").trim();
+        const rowArea = getProductionAreaFromLocation(location);
+        if (rowArea !== area) return;
+
+        const key = getProductionLayoutKey(area, location, exactMode);
         if (!key) return;
 
         const sku = String(getField(row, ["Sku code", "SKU", "ArticleSKU"]) || "").trim();
@@ -1105,15 +1159,16 @@
         const tmId = String(getField(row, ["Tm id", "TM ID", "TmId"]) || "").trim();
         const qty = Number(String(getField(row, ["Qty", "Quantity"]) || "0").replace(",", ".")) || 0;
 
-        if (!data[area][key]) {
-          data[area][key] = { key, tmCount: 0, qty: 0, skus: new Set(), skuNames: new Set(), tmIds: [] };
+        if (!data[key]) {
+          data[key] = { key, tmCount: 0, qty: 0, skus: new Set(), skuNames: new Set(), tmIds: [], locations: new Set() };
         }
 
-        data[area][key].tmCount += tmId ? 1 : 0;
-        data[area][key].qty += qty;
-        if (sku) data[area][key].skus.add(sku);
-        if (skuName) data[area][key].skuNames.add(skuName);
-        if (tmId) data[area][key].tmIds.push(tmId);
+        data[key].tmCount += tmId ? 1 : 0;
+        data[key].qty += qty;
+        data[key].locations.add(location);
+        if (sku) data[key].skus.add(sku);
+        if (skuName) data[key].skuNames.add(skuName);
+        if (tmId) data[key].tmIds.push(tmId);
       });
 
       return data;
@@ -1124,10 +1179,9 @@
       if (!grid) return;
 
       const query = String(document.getElementById("layoutSearch").value || "").trim().toLowerCase();
-      const layoutData = buildProductionLayoutData(productionRowsCache);
-      const areaData = layoutData[activeLayoutArea] || {};
-      const keys = getLayoutKeys(activeLayoutArea);
-      const allKeys = Array.from(new Set(keys.concat(Object.keys(areaData))));
+      const areaData = buildProductionLayoutData(productionRowsCache, activeLayoutArea, query);
+      const fixedKeys = query ? [] : getLayoutKeys(activeLayoutArea);
+      const allKeys = Array.from(new Set(fixedKeys.concat(Object.keys(areaData)))).sort((a, b) => compareProductionKeys(activeLayoutArea, a, b));
 
       grid.className = "layout-grid " + activeLayoutArea.toLowerCase();
       grid.innerHTML = "";
@@ -1136,7 +1190,7 @@
       const uniqueSkus = new Set();
 
       allKeys.forEach(key => {
-        const entry = areaData[key] || { key, tmCount: 0, qty: 0, skus: new Set(), skuNames: new Set(), tmIds: [] };
+        const entry = areaData[key] || { key, tmCount: 0, qty: 0, skus: new Set(), skuNames: new Set(), tmIds: [], locations: new Set() };
         if (entry.tmCount) {
           occupied++;
           tmIds += entry.tmCount;
@@ -1151,20 +1205,22 @@
       document.getElementById("layoutSkus").textContent = String(uniqueSkus.size);
 
       allKeys.forEach(key => {
-        const entry = areaData[key] || { key, tmCount: 0, qty: 0, skus: new Set(), skuNames: new Set(), tmIds: [] };
+        const entry = areaData[key] || { key, tmCount: 0, qty: 0, skus: new Set(), skuNames: new Set(), tmIds: [], locations: new Set() };
+        if (query && !entry.tmCount) return;
+
         const skuText = Array.from(entry.skus).slice(0, 2).join(", ");
         const nameText = Array.from(entry.skuNames).slice(0, 1).join("");
-        const haystack = (key + " " + skuText + " " + nameText).toLowerCase();
-        if (query && !haystack.includes(query)) return;
+        const locationsText = Array.from(entry.locations).slice(0, 2).join(", ");
 
         const cell = document.createElement("div");
         cell.className = "layout-cell " + getCellLevel(entry);
-        cell.title = key + "\\nTM IDs: " + entry.tmCount + "\\nQty: " + Math.round(entry.qty) + "\\nSKUs: " + Array.from(entry.skus).join(", ");
+        cell.title = key + "\\nTM IDs: " + entry.tmCount + "\\nQty: " + Math.round(entry.qty) + "\\nSKUs: " + Array.from(entry.skus).join(", ") + "\\nLocations: " + Array.from(entry.locations).join(", ");
 
         cell.innerHTML =
           '<div class="cell-key">' + key + '</div>' +
           '<div class="cell-sub">TM: ' + entry.tmCount + ' · Qty: ' + Math.round(entry.qty) + '<br>SKU: ' + entry.skus.size + '</div>' +
           (skuText ? '<div class="cell-sku">' + skuText + '</div>' : '') +
+          (locationsText && query ? '<div class="cell-sub">' + locationsText + '</div>' : '') +
           (entry.tmCount ? '<div class="cell-badge">' + entry.tmCount + '</div>' : '');
 
         grid.appendChild(cell);
